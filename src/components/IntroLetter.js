@@ -3,209 +3,262 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, ArrowRight } from 'lucide-react';
 import { useMemory } from '@/lib/MemoryContext';
+import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 
 export default function IntroLetter({ couple, onEnterSite }) {
   const { isPlayingMusic, setIsPlayingMusic } = useMemory();
-  const [isOpen, setIsOpen] = useState(false);
-  const [showLetter, setShowLetter] = useState(false);
+  
+  // Các trạng thái của chuỗi chuyển động click mở thư
+  const [isHovered, setIsHovered] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
+  const [flapOpened, setFlapOpened] = useState(false);
+  const [letterExtracted, setLetterExtracted] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(false);
   const [isRendered, setIsRendered] = useState(true);
 
-  // Kích hoạt phát nhạc khi vừa vào trang (nếu trình duyệt cho phép)
+  // 1. Khóa cuộn toàn trang (body scroll lock) khi lớp phủ Intro đang hiển thị
+  useEffect(() => {
+    if (isRendered) {
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    }
+    
+    return () => {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    };
+  }, [isRendered]);
+
+  // Thử tự động phát nhạc khi vừa vào trang (nếu được trình duyệt cho phép)
   useEffect(() => {
     setIsPlayingMusic(true);
   }, [setIsPlayingMusic]);
 
-  // Rút thư tình ra khỏi phong bì một cách liên tục và mượt mà
+  // 2. Chuỗi chuyển động Click Sequence mượt mà
   const handleOpenEnvelope = () => {
-    if (isOpen) return;
-    setIsOpen(true);
+    if (isClicked) return;
+    setIsClicked(true);
     
-    // Bật nhạc nền ngay khi bấm mở phong bì
+    // Kích hoạt phát nhạc nền ngay từ hành động click của người dùng
     setIsPlayingMusic(true);
+
+    // Bước 1: Rung phong bì nhẹ vật lý (150ms)
+    setIsShaking(true);
     
-    // Rút lá thư trượt lên (Sau 600ms khi nắp phong bì đã lật mở hoàn toàn)
     setTimeout(() => {
-      setShowLetter(true);
-      // Bắn confetti chúc mừng lãng mạn
-      confetti({
-        particleCount: 70,
-        spread: 80,
-        origin: { y: 0.7 },
-        colors: ['#ff758f', '#ffb3c1', '#ff4d6d', '#fff']
-      });
-    }, 600);
+      setIsShaking(false);
+      
+      // Bước 2: Nắp phong bì từ từ xoay lật ngược lên trên (600ms)
+      setFlapOpened(true);
+      
+      setTimeout(() => {
+        // Bước 3: Lá thư bắt đầu trượt lên trên và camera zoom vào, nền blur nhẹ (1200ms)
+        setLetterExtracted(true);
+        setIsZoomed(true);
+        
+        // Bắn pháo hoa giấy lấp lánh nhẹ nhàng
+        confetti({
+          particleCount: 50,
+          spread: 60,
+          origin: { y: 0.65 },
+          colors: ['#E96A87', '#D9B36A', '#ffffff']
+        });
+      }, 550);
+
+    }, 180);
   };
 
+  // 3. Đóng thư và chuyển cảnh vào Hero Section chính
   const handleClose = () => {
-    setIsRendered(false);
+    setIsZoomed(false);
+    setLetterExtracted(false);
+    
     setTimeout(() => {
-      onEnterSite();
-    }, 500);
+      setIsRendered(false);
+      setTimeout(() => {
+        onEnterSite();
+      }, 500);
+    }, 600);
   };
 
   if (!isRendered) return null;
 
   return (
     <div 
-      className={`fixed inset-0 w-screen h-screen z-50 flex items-center justify-center p-4 transition-opacity duration-500 overflow-hidden select-none ${isRendered ? 'opacity-100' : 'opacity-0'}`}
+      className={`fixed inset-0 w-screen h-screen z-[100] flex items-center justify-center p-4 transition-opacity duration-700 select-none ${isRendered ? 'opacity-100' : 'opacity-0'}`}
       style={{
-        // Nền caro hồng-trắng ngọt ngào (Gingham Pink) y hệt video mẫu
-        backgroundColor: '#fff0f3',
+        // Nền kem lụa ấm áp nhã nhặn
+        backgroundColor: '#F9F6F0',
+        // Vân giấy lụa nhám mịn SVG (subtle grain overlay base64) cực sang trọng
         backgroundImage: `
-          linear-gradient(90deg, rgba(255, 179, 193, 0.25) 50%, transparent 50%),
-          linear-gradient(rgba(255, 179, 193, 0.25) 50%, transparent 50%)
+          radial-gradient(circle at center, rgba(255,255,255,0.75) 0%, rgba(249,246,240,1) 100%),
+          url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.022'/%3E%3C/svg%3E")
         `,
-        backgroundSize: '70px 70px'
+        // Vignette làm tối 4 góc nhẹ nhàng như thước phim chiếu bóng
+        boxShadow: 'inset 0 0 140px rgba(0,0,0,0.06)'
       }}
     >
       
-      {/* 🎈 BÓNG BAY TRÁI TIM TRÔI NỔI (3 quả bóng bay lên từ phong bì) */}
-      {isOpen && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none z-40">
-          {/* Quả bóng 1 (Bên trái) */}
-          <div className="absolute left-[20%] bottom-[25%] animate-[floatBalloon_5s_ease-out_forwards]">
+      {/* 🎈 BÓNG BAY TRÁI TIM MỘC MẠC (Chỉ bay lên khi phong bì mở nắp) */}
+      {flapOpened && (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-30">
+          <div className="absolute left-[20%] bottom-[25%] animate-[floatBalloon_5.5s_ease-out_forwards]">
             <div className="relative flex flex-col items-center">
-              <div className="w-14 h-14 bg-pink-400 rounded-full flex items-center justify-center shadow-md after:content-[''] after:absolute after:bottom-[-4px] after:w-0 after:h-0 after:border-l-[6px] after:border-l-transparent after:border-r-[6px] after:border-r-transparent after:border-t-[8px] after:border-t-pink-400">
-                <Heart className="w-8 h-8 fill-white text-white opacity-90" />
+              <div className="w-12 h-12 bg-pink-400/90 rounded-full flex items-center justify-center shadow-md after:content-[''] after:absolute after:bottom-[-4px] after:w-0 after:h-0 after:border-l-[5px] after:border-l-transparent after:border-r-[5px] after:border-r-transparent after:border-t-[7px] after:border-t-pink-400/90">
+                <Heart className="w-6 h-6 fill-white text-white opacity-90" />
               </div>
-              <svg className="w-6 h-16 text-pink-400/60 overflow-visible mt-1" viewBox="0 0 20 60">
-                <path d="M10,0 Q15,15 5,30 T10,60" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="3 2" />
-              </svg>
             </div>
           </div>
 
-          {/* Quả bóng 2 (Giữa) */}
-          <div className="absolute left-[48%] bottom-[28%] animate-[floatBalloon_6s_ease-out_0.3s_forwards]">
+          <div className="absolute left-[50%] bottom-[28%] animate-[floatBalloon_6.5s_ease-out_0.3s_forwards]">
             <div className="relative flex flex-col items-center">
-              <div className="w-16 h-16 bg-pink-300 rounded-full flex items-center justify-center shadow-md after:content-[''] after:absolute after:bottom-[-4px] after:w-0 after:h-0 after:border-l-[6px] after:border-l-transparent after:border-r-[6px] after:border-r-transparent after:border-t-[8px] after:border-t-pink-300">
-                <Heart className="w-9 h-9 fill-white text-white opacity-90" />
-              </div>
-              <svg className="w-6 h-18 text-pink-300/60 overflow-visible mt-1" viewBox="0 0 20 60">
-                <path d="M10,0 Q5,15 15,30 T10,60" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="3 2" />
-              </svg>
-            </div>
-          </div>
-
-          {/* Quả bóng 3 (Bên phải) */}
-          <div className="absolute left-[76%] bottom-[24%] animate-[floatBalloon_4.5s_ease-out_0.6s_forwards]">
-            <div className="relative flex flex-col items-center">
-              <div className="w-13 h-13 bg-rose-500 rounded-full flex items-center justify-center shadow-md after:content-[''] after:absolute after:bottom-[-4px] after:w-0 after:h-0 after:border-l-[5px] after:border-l-transparent after:border-r-[5px] after:border-r-transparent after:border-t-[7px] after:border-t-rose-500">
+              <div className="w-14 h-14 bg-pink-300/90 rounded-full flex items-center justify-center shadow-md after:content-[''] after:absolute after:bottom-[-4px] after:w-0 after:h-0 after:border-l-[6px] after:border-l-transparent after:border-r-[6px] after:border-r-transparent after:border-t-[8px] after:border-t-pink-300/90">
                 <Heart className="w-7 h-7 fill-white text-white opacity-90" />
               </div>
-              <svg className="w-6 h-14 text-rose-500/60 overflow-visible mt-1" viewBox="0 0 20 60">
-                <path d="M10,0 Q15,15 5,30 T10,60" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="3 2" />
-              </svg>
+            </div>
+          </div>
+
+          <div className="absolute left-[78%] bottom-[24%] animate-[floatBalloon_5s_ease-out_0.6s_forwards]">
+            <div className="relative flex flex-col items-center">
+              <div className="w-11 h-11 bg-rose-500/90 rounded-full flex items-center justify-center shadow-md after:content-[''] after:absolute after:bottom-[-4px] after:w-0 after:h-0 after:border-l-[4px] after:border-l-transparent after:border-r-[4px] after:border-r-transparent after:border-t-[6px] after:border-t-rose-500/90">
+                <Heart className="w-5.5 h-5.5 fill-white text-white opacity-90" />
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* CSS KEYFRAMES */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes floatBalloon {
-          0% {
-            transform: translateY(150px) scale(0.6) rotate(0deg);
-            opacity: 0;
-          }
-          10% {
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(-700px) scale(1.1) rotate(10deg);
-            opacity: 0;
-          }
+          0% { transform: translateY(150px) scale(0.6); opacity: 0; }
+          10% { opacity: 1; }
+          100% { transform: translateY(-750px) scale(1.1); opacity: 0; }
         }
-        @keyframes floatSlow {
-          0%, 100% {
-            transform: translateY(0px) rotate(0deg);
-          }
-          50% {
-            transform: translateY(-8px) rotate(0.3deg);
-          }
+        @keyframes envelopeShake {
+          0%, 100% { transform: rotate(0deg) translateX(0); }
+          20%, 60% { transform: rotate(-1.5deg) translateX(-5px); }
+          40%, 80% { transform: rotate(1.5deg) translateX(5px); }
         }
-        .float-animation {
-          animation: floatSlow 4s ease-in-out infinite;
+        .envelope-shake-active {
+          animation: envelopeShake 0.18s ease-in-out;
+        }
+        .vân-giấy-nhám {
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.028'/%3E%3C/svg%3E");
         }
       `}} />
 
-      {/* KHUNG CHỨA TRUNG TÂM TUYỆT ĐỐI (FLEXBOX) */}
-      <div className="w-full max-w-xl flex flex-col items-center justify-center px-4 relative z-30">
+      {/* 🎬 CONTAINER ZOOM TỰ ĐỘNG (Camera Zoom) - Luôn nằm chính giữa khung hình */}
+      <motion.div 
+        animate={{
+          scale: isZoomed ? 1.08 : 1,
+          filter: isZoomed ? 'blur(0px)' : 'blur(0px)'
+        }}
+        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-4xl flex items-center justify-center relative z-30"
+      >
         
-        {/* KHU VỰC DỰNG HÌNH PHONG BÌ 3D LỚP (Layered Envelope container) */}
-        <div className="relative flex items-center justify-center float-animation" style={{ width: '420px', height: '280px' }}>
+        {/* KHU VỰC PHONG BÌ 3D LỚP (Bảo đảm tỷ lệ to rõ) */}
+        <div 
+          onMouseEnter={() => !isClicked && setIsHovered(true)}
+          onMouseLeave={() => !isClicked && setIsHovered(false)}
+          className={`relative flex items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${isShaking ? 'envelope-shake-active' : ''}`}
+          style={{ 
+            width: '440px', 
+            height: '300px',
+            transform: isHovered && !isClicked ? 'translateY(-6px) scale(1.03)' : 'translateY(0px) scale(1)',
+          }}
+        >
           
-          {/* A. BÓNG ĐỔ PHONG BÌ */}
-          <div className="absolute inset-0 bg-rose-900/5 rounded-3xl blur-2xl transform translate-y-5 scale-95 z-0" />
+          {/* A. BÓNG ĐỔ PHONG BÌ CHÂN THỰC */}
+          <div 
+            className="absolute inset-0 bg-[#3d2b27]/8 rounded-2xl blur-2xl transform translate-y-6 scale-[0.93] transition-all duration-700"
+            style={{
+              boxShadow: isHovered && !isClicked 
+                ? '0 30px 75px -10px rgba(61, 43, 39, 0.22)' 
+                : '0 15px 40px -15px rgba(61, 43, 39, 0.12)'
+            }}
+          />
 
-          {/* B. MẶT SAU PHONG BÌ (z-index: 1) */}
-          <div className="absolute inset-0 bg-[#fdfbf7] rounded-2xl border-3 border-pink-400 shadow-sm overflow-hidden" style={{ zIndex: 1 }}>
-            <div className="absolute inset-2 border border-pink-200/50 rounded-xl" />
+          {/* B. MẶT SAU PHONG BÌ (z-index: 10) */}
+          <div className="absolute inset-0 bg-[#FAF6F0] rounded-2xl border border-pink-100/10 shadow-inner overflow-hidden vân-giấy-nhám" style={{ zIndex: 10 }}>
+            {/* Viền chỉ thanh nhã */}
+            <div className="absolute inset-2.5 border border-pink-200/20 rounded-xl" />
           </div>
 
-          {/* C. CHỮ "TO THE LOVE OF MY LIFE" THÒ RA (Nằm trong phong bì, z-index: 2) */}
+          {/* C. CHỮ "TO THE LOVE OF MY LIFE" THÒ RA (z-index: 12) */}
           <div 
             onClick={handleOpenEnvelope}
-            className={`absolute inset-x-10 h-22 bg-[#fffdfa] border-t-2 border-x-2 border-pink-300 rounded-t-xl transition-all duration-700 shadow-sm flex items-center justify-center cursor-pointer ${isOpen ? 'translate-y-12 opacity-0' : 'translate-y-[-15px] group-hover:translate-y-[-22px]'}`} 
-            style={{ zIndex: 2 }}
+            className={`absolute inset-x-10 h-24 bg-[#FCFAF7] border-t border-x border-pink-200/20 rounded-t-xl transition-all duration-750 shadow-sm flex items-center justify-center cursor-pointer vân-giấy-nhám ${flapOpened ? 'translate-y-16 opacity-0' : isHovered ? 'translate-y-[-18px]' : 'translate-y-[-10px]'}`} 
+            style={{ zIndex: 12 }}
           >
-            <span className="font-handwriting text-pink-700 text-xl font-bold text-center px-2">
+            <span className="font-display italic text-[#E96A87] text-lg font-light tracking-wide px-4">
               {couple.introEnvelopeText || 'To the Love of My Life'}
             </span>
           </div>
 
-          {/* D. 📜 LÁ THƯ TÌNH THỰC SỰ (Nằm trong phong bì, z-index: 3)
-              Hiệu ứng: Khi chưa mở, lá thư thu nhỏ nằm khuất bên trong phong bì.
-              Khi mở: Lá thư trượt mượt mà từ trong phong bì đi lên trên (translate-y-[-230px]), phóng to (scale-125) đè lên tất cả.
+          {/* D. 📜 RUỘT LÁ THƯ TÌNH CHÂN THỰC (z-index: 15)
+              - Khi đóng: Thu nhỏ scale-80 nằm chìm trong lòng phong bì.
+              - Khi mở: Trượt lên trên chính giữa viewport (translateY(-130px)), phóng to, đè lên các cánh phong bì trước.
           */}
           <div 
-            className={`absolute left-4 right-4 bg-[#fcfbf9] rounded-2xl border-4 border-pink-300 p-6 md:p-8 transition-all duration-[1200ms] cubic-bezier(0.34, 1.56, 0.64, 1) flex flex-col justify-between ${showLetter ? 'translate-y-[-130px] scale-[1.25] opacity-100 rotate-0 shadow-2xl pointer-events-auto' : 'translate-y-[20px] scale-[0.82] opacity-0 pointer-events-none shadow-none'}`}
+            className={`absolute bg-[#FCFAF7] rounded-xl border border-[#FAF6F0] p-8 transition-all duration-[1200ms] cubic-bezier(0.16, 1, 0.3, 1) flex flex-col justify-between vân-giấy-nhám ${letterExtracted ? 'translate-y-[-130px] scale-[1.3] opacity-100 shadow-2xl pointer-events-auto' : 'translate-y-[20px] scale-[0.8] opacity-0 pointer-events-none'}`}
             style={{
-              zIndex: showLetter ? 35 : 3, // Khi trượt lên hoàn toàn sẽ đè lên các cánh phong bì
-              minHeight: '520px',
-              boxShadow: showLetter ? '0 30px 70px -15px rgba(219, 39, 119, 0.3)' : 'none',
+              zIndex: letterExtracted ? 40 : 15,
+              // Chiều rộng đáp ứng hoàn hảo (Responsive: 720px ở desktop, 75vw ở tablet, 90vw ở mobile)
+              width: typeof window !== 'undefined' && window.innerWidth < 640 ? '90vw' : typeof window !== 'undefined' && window.innerWidth < 1024 ? '75vw' : '720px',
+              minHeight: '560px',
+              boxShadow: letterExtracted ? '0 35px 85px -15px rgba(61, 43, 39, 0.16)' : 'none',
               transformOrigin: 'bottom center'
             }}
           >
-            {/* Chữ ghi chú góc trái trên */}
-            <div className="absolute top-4 left-4 text-[8px] font-bold text-pink-400/50 bg-pink-50/50 px-2 py-0.5 rounded-full tracking-wider uppercase border border-pink-200/30">
+            {/* Ghi chú góc trái trên */}
+            <div className="absolute top-4 left-4 text-[8px] font-bold text-pink-400/50 bg-pink-50/30 px-2.5 py-0.5 rounded-full tracking-widest uppercase border border-pink-200/20 font-sans">
               {couple.introLetterNote || 'Pause to read 📖'}
             </div>
 
             {/* Trái tim trang trí nhỏ */}
-            <div className="absolute top-6 right-6 w-5 h-5 text-pink-400/40 animate-pulse">
+            <div className="absolute top-5 right-5 w-5 h-5 text-pink-400/30 animate-pulse">
               <Heart className="w-full h-full fill-current" />
             </div>
 
-            {/* THIỆP PHẦN TRÊN */}
-            <div className="flex-1 flex flex-col justify-start text-left">
-              <h2 className="font-handwriting text-2xl md:text-3xl text-pink-700 font-bold mb-3 tracking-wide pt-2 select-text">
+            {/* THIỆP PHẦN TRÊN (Lời chào & Ruột thư cuộn nội bộ) */}
+            <div className="flex-1 flex flex-col justify-start text-left pt-3">
+              <h2 className="font-display text-2xl md:text-3xl text-pink-700 font-bold mb-3 tracking-wide select-text">
                 {couple.introGreeting || 'Hey Samira,'}
               </h2>
-              <p className="font-handwriting text-lg md:text-xl text-rose-950/90 leading-relaxed tracking-wide whitespace-pre-wrap select-text pr-2 mb-1">
-                {couple.introMessage || 'Love is in the air, so I\'m taking this chance to spill the beans...'}
-              </p>
-            </div>
-
-            {/* ĐƯỜNG GẤP THIỆP */}
-            <div className="w-full my-3 border-t border-dashed border-pink-200/50 relative">
-              <div className="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 bg-[#fcfbf9] flex items-center justify-center">
-                <Heart className="w-2 text-pink-300 fill-pink-100" />
+              
+              {/* KHÓA CUỘN NGOÀI: CHỈ CUỘN NỘI BỘ NỘI DUNG THƯ (Immersive reading) */}
+              <div className="flex-1 overflow-y-auto max-h-[300px] md:max-h-[350px] pr-2 scrollbar-thin scrollbar-thumb-pink-100 select-text">
+                <p className="font-handwriting text-2xl text-[#2B2B2B]/90 leading-relaxed whitespace-pre-wrap tracking-wide pr-2">
+                  {couple.introMessage || 'Love is in the air, so I\'m taking this chance to spill the beans...'}
+                </p>
               </div>
             </div>
 
-            {/* THIỆP PHẦN DƯỚI */}
+            {/* ĐƯỜNG GẤP THIỆP MỜ */}
+            <div className="w-full my-4 border-t border-dashed border-pink-200/30 relative">
+              <div className="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 bg-[#FCFAF7] flex items-center justify-center">
+                <Heart className="w-2.5 h-2.5 text-[#E96A87]/30 fill-pink-100" />
+              </div>
+            </div>
+
+            {/* THIỆP PHẦN DƯỚI (Ký tên & Tem thư) */}
             <div className="relative flex justify-between items-end min-h-[110px] pt-1">
-              {/* Ký tên */}
+              {/* Ký tên viết tay */}
               <div className="flex flex-col items-start font-handwriting select-text text-left">
-                <span className="text-lg text-pink-600 italic">{couple.introSignOff || 'Fingers crossed,'}</span>
-                <span className="text-xl md:text-2xl text-pink-750 font-bold mt-0.5 pl-2">{couple.introSender || 'Aaron'}</span>
+                <span className="text-lg text-pink-600 italic leading-none">{couple.introSignOff || 'Fingers crossed,'}</span>
+                <span className="text-2xl text-[#2B2B2B] font-bold mt-1 pl-2">{couple.introSender || 'Aaron'}</span>
               </div>
 
-              {/* Tem thư & Dấu */}
+              {/* Tem thư & Dấu tròn */}
               <div className="relative flex flex-col items-end mr-1 scale-90 origin-bottom-right">
-                {/* Tem thư */}
-                <div className="w-18 h-22 bg-white p-0.5 shadow-md border border-dashed border-pink-400/50 rotate-[6deg] flex flex-col items-center justify-between rounded-sm">
+                {/* Tem thư răng cưa */}
+                <div className="w-18 h-22 bg-white p-0.5 shadow-md border border-dashed border-pink-400/40 rotate-[6deg] flex flex-col items-center justify-between rounded-sm">
                   <div className="w-full h-[74%] overflow-hidden bg-rose-50 rounded-sm">
                     <img 
                       src={couple.introStampUrl || "https://images.unsplash.com/photo-1555448248-2571daf6344b?q=80&w=200&auto=format&fit=crop"} 
@@ -213,79 +266,82 @@ export default function IntroLetter({ couple, onEnterSite }) {
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="text-[6px] text-pink-500 font-bold tracking-widest pb-0.5">LOVE MAIL</div>
+                  <div className="text-[6px] text-pink-500 font-bold tracking-widest pb-0.5 leading-none">LOVE MAIL</div>
                 </div>
 
-                {/* Dấu bưu điện */}
-                <div className="absolute -left-5 bottom-3 w-18 h-18 rounded-full border border-pink-400/30 flex items-center justify-center rotate-[-10deg] z-10">
-                  <div className="w-[84%] h-[84%] rounded-full border border-dashed border-pink-400/35 flex flex-col items-center justify-center text-center">
-                    <span className="text-[6px] text-pink-400/40 font-bold tracking-widest leading-none">LOVE MAIL</span>
-                    <Heart className="w-3 h-3 text-pink-400/35 fill-pink-400/5 my-0.5" />
-                    <span className="text-[5px] text-pink-400/40 tracking-wider font-mono">SWEET.POST</span>
+                {/* Dấu bưu điện đè lên */}
+                <div className="absolute -left-5 bottom-3 w-18 h-18 rounded-full border border-pink-400/25 flex items-center justify-center rotate-[-10deg] z-10 pointer-events-none">
+                  <div className="w-[84%] h-[84%] rounded-full border border-dashed border-pink-400/30 flex flex-col items-center justify-center text-center">
+                    <span className="text-[6px] text-pink-400/30 font-bold tracking-widest leading-none">LOVE MAIL</span>
+                    <Heart className="w-2.5 h-2.5 text-pink-400/25 fill-pink-400/5 my-0.5" />
+                    <span className="text-[5px] text-pink-400/30 tracking-wider font-mono">SWEET.POST</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Nút bấm bước vào (Nằm gọn ở đáy lá thư) */}
+            {/* Nút bấm bước vào (Nằm dưới lá thư) */}
             <button
               onClick={handleClose}
-              className="mt-4 w-full py-2.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform active:scale-95 flex items-center justify-center gap-2 z-30 font-display text-xs md:text-sm"
+              className="mt-5 w-full py-2.5 bg-gradient-to-r from-pink-500 to-[#E96A87] hover:from-pink-600 hover:to-[#ff5277] text-white font-medium text-xs tracking-widest uppercase rounded-lg shadow-sm hover:shadow transition-all duration-300 transform active:scale-95 flex items-center justify-center gap-2 z-30 font-sans"
             >
               <span>{couple.introButtonText || 'Bước vào thế giới của chúng mình'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
-          {/* E. NẮP PHONG BÌ PHÍA TRÊN (Lật 3D ra phía sau, z-index: 4 khi đóng, z-index: 0 khi mở) */}
+          {/* E. NẮP PHONG BÌ PHÍA TRÊN (z-index: 25 đóng, z-index: 5 mở lật ngược) */}
           <div 
             onClick={handleOpenEnvelope}
-            className="absolute top-0 left-0 right-0 h-[145px] bg-[#fcf9f2] border-t-3 border-x-3 border-pink-400 rounded-t-2xl origin-top transition-transform duration-[600ms] ease-in-out cursor-pointer"
+            className="absolute top-0 left-0 right-0 h-[155px] bg-[#FAF6F0] border-t-2 border-x-2 border-pink-400/25 rounded-t-2xl origin-top transition-transform duration-[650ms] ease-in-out cursor-pointer vân-giấy-nhám"
             style={{
               clipPath: 'polygon(0% 0%, 50% 100%, 100% 0%)',
-              transform: isOpen ? 'rotateX(180deg) translateY(-1px)' : 'rotateX(0deg)',
-              zIndex: isOpen ? 0 : 12
+              transform: flapOpened ? 'rotateX(180deg) translateY(-1px)' : 'rotateX(0deg)',
+              zIndex: flapOpened ? 5 : 25
             }}
           />
 
-          {/* F. CÁC CÁNH PHONG BÌ MẶT TRƯỚC (Gấp đè lên lá thư ban đầu, z-index: 10) */}
+          {/* F. CÁC CÁNH PHONG BÌ MẶT TRƯỚC (Gấp chéo, z-index: 20) */}
           <div 
             onClick={handleOpenEnvelope}
-            className="absolute inset-y-0 left-0 w-[212px] bg-[#f9f6ef] border-l-3 border-y-3 border-pink-400 cursor-pointer" 
-            style={{ clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)', zIndex: 10 }} 
+            className="absolute inset-y-0 left-0 w-[222px] bg-[#FAF6F0] border-l-2 border-y-2 border-pink-400/25 cursor-pointer vân-giấy-nhám" 
+            style={{ clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)', zIndex: 20 }} 
           />
           <div 
             onClick={handleOpenEnvelope}
-            className="absolute inset-y-0 right-0 w-[212px] bg-[#f9f6ef] border-r-3 border-y-3 border-pink-400 cursor-pointer" 
-            style={{ clipPath: 'polygon(100% 0%, 0% 50%, 100% 100%)', zIndex: 10 }} 
+            className="absolute inset-y-0 right-0 w-[222px] bg-[#FAF6F0] border-r-2 border-y-2 border-pink-400/25 cursor-pointer vân-giấy-nhám" 
+            style={{ clipPath: 'polygon(100% 0%, 0% 50%, 100% 100%)', zIndex: 20 }} 
           />
           <div 
             onClick={handleOpenEnvelope}
-            className="absolute bottom-0 inset-x-0 h-[155px] bg-[#f5f2e8] border-b-3 border-x-3 border-pink-400 rounded-b-2xl cursor-pointer" 
-            style={{ clipPath: 'polygon(0% 100%, 50% 0%, 100% 100%)', zIndex: 10 }} 
+            className="absolute bottom-0 inset-x-0 h-[165px] bg-[#F5F2E8] border-b-2 border-x-2 border-pink-400/25 rounded-b-2xl cursor-pointer vân-giấy-nhám" 
+            style={{ clipPath: 'polygon(0% 100%, 50% 0%, 100% 100%)', zIndex: 20 }} 
           />
 
-          {/* G. CON DẤU NIÊM PHONG SÁP HÌNH TRÁI TIM (z-index: 15) */}
+          {/* G. CON DẤU NIÊM PHONG SÁP VÀNG KIM (z-index: 30) */}
           <div 
             onClick={handleOpenEnvelope}
-            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-pink-500 border-2 border-pink-400 shadow-md flex items-center justify-center active:scale-90 transition-all duration-500 cursor-pointer ${isOpen ? 'scale-0 opacity-0 rotate-95' : 'scale-100 opacity-100 rotate-0 animate-pulse'}`}
-            style={{ zIndex: 15 }}
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-[#D9B36A] border-2 border-[#cfa557] shadow-md flex items-center justify-center active:scale-90 transition-all duration-500 cursor-pointer ${isClicked ? 'scale-0 opacity-0 rotate-45' : 'scale-100 opacity-100 rotate-0 hover:scale-105'}`}
+            style={{ 
+              zIndex: 30,
+              boxShadow: '0 4px 10px rgba(217, 179, 106, 0.35)'
+            }}
           >
-            <Heart className="w-8 h-8 fill-white text-white" />
+            <Heart className={`w-8 h-8 fill-white text-white ${isHovered && !isClicked ? 'animate-[pulse_1s_infinite]' : 'animate-pulse'}`} />
           </div>
 
-          {/* H. NHÃN HƯỚNG DẪN "CLICK TO OPEN 💖" DƯỚI PHONG BÌ (z-index: 15) */}
+          {/* H. NHÃN CHỈ DẪN NHẤP NHÁY (z-index: 30) */}
           <div 
             onClick={handleOpenEnvelope}
-            className={`absolute bottom-[-50px] inset-x-0 text-center text-pink-600 font-bold text-sm tracking-widest transition-opacity duration-500 cursor-pointer ${isOpen ? 'opacity-0' : 'opacity-100 animate-pulse'}`}
-            style={{ zIndex: 15 }}
+            className={`absolute bottom-[-50px] inset-x-0 text-center text-[#E96A87] font-bold text-xs tracking-[0.2em] transition-opacity duration-500 cursor-pointer ${isClicked ? 'opacity-0' : 'opacity-100 animate-pulse'}`}
+            style={{ zIndex: 30 }}
           >
             {couple.introEnvelopeLabel || 'CLICK TO OPEN 💖'}
           </div>
 
         </div>
 
-      </div>
+      </motion.div>
     </div>
   );
 }
