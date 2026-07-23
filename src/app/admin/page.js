@@ -118,7 +118,7 @@ export default function AdminDashboard() {
         const reader = new FileReader();
         reader.onloadend = () => {
           setUrlCallback(reader.result);
-          alert("Đã lưu ảnh cục bộ thành công! (Chế độ chạy thử nghiệm offline)");
+          alert("Đã lưu file cục bộ thành công! (Chế độ chạy thử nghiệm offline)");
         };
         reader.readAsDataURL(file);
       }
@@ -128,7 +128,7 @@ export default function AdminDashboard() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setUrlCallback(reader.result);
-        alert("Đã lưu ảnh cục bộ thành công! (Chế độ chạy thử nghiệm offline)");
+        alert("Đã lưu file cục bộ thành công! (Chế độ chạy thử nghiệm offline)");
       };
       reader.readAsDataURL(file);
     } finally {
@@ -136,7 +136,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const FileUploadButton = ({ label, onUploadComplete, fieldId }) => {
+  const FileUploadButton = ({ label, onUploadComplete, fieldId, accept }) => {
     return (
       <div className="mt-2">
         <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl border border-rose-200 transition-colors shadow-sm active:scale-95">
@@ -144,7 +144,7 @@ export default function AdminDashboard() {
           <span>{uploadingField === fieldId ? "Đang tải lên..." : (label || "Tải ảnh từ máy")}</span>
           <input
             type="file"
-            accept="image/*,video/*"
+            accept={accept || "image/*,video/*"}
             disabled={uploadingField !== null}
             onChange={(e) => handleFileUpload(e, onUploadComplete, fieldId)}
             className="hidden"
@@ -444,6 +444,12 @@ export default function AdminDashboard() {
                     type="text" value={musicUrl} onChange={(e) => setMusicUrl(e.target.value)}
                     placeholder="https://server.com/song.mp3"
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm bg-gray-50"
+                  />
+                  <FileUploadButton 
+                    label="Tải nhạc mp3 lên trực tiếp" 
+                    onUploadComplete={setMusicUrl} 
+                    fieldId="musicUrl" 
+                    accept="audio/*" 
                   />
                 </div>
                 <div>
