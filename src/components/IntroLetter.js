@@ -11,26 +11,25 @@ export default function IntroLetter({ couple, onEnterSite }) {
   const [showLetter, setShowLetter] = useState(false);
   const [isRendered, setIsRendered] = useState(true);
 
-  // Thử tự động phát nhạc khi vừa truy cập (nếu trình duyệt không chặn)
+  // Kích hoạt phát nhạc ngay khi vừa vào trang (nếu trình duyệt không chặn)
   useEffect(() => {
     setIsPlayingMusic(true);
   }, [setIsPlayingMusic]);
 
-  // Kích hoạt bóng bay, pháo hoa và phát nhạc khi mở thư
+  // Kích hoạt phát nhạc, bóng bay và pháo hoa khi bấm mở phong bì
   const handleOpenEnvelope = () => {
     if (isOpen) return;
     setIsOpen(true);
     
-    // Kích hoạt phát nhạc nền (Vượt qua bộ chặn autoplay của trình duyệt nhờ hành động tương tác click của người dùng)
+    // Bật nhạc nền ngay lập tức để qua mặt chính sách chặn phát nhạc tự động của Chrome/Safari
     setIsPlayingMusic(true);
     
-    // Đồng bộ thời gian lật nắp phong bì (600ms) rồi trượt thiệp lên
     setTimeout(() => {
       setShowLetter(true);
-      // Bắn pháo hoa giấy lấp lánh ngọt ngào
+      // Bắn confetti lấp lánh ngọt ngào
       confetti({
-        particleCount: 65,
-        spread: 75,
+        particleCount: 70,
+        spread: 80,
         origin: { y: 0.7 },
         colors: ['#ff758f', '#ffb3c1', '#ff4d6d', '#fff']
       });
@@ -48,7 +47,7 @@ export default function IntroLetter({ couple, onEnterSite }) {
 
   return (
     <div 
-      className={`fixed inset-0 z-50 transition-all duration-500 overflow-hidden select-none ${isRendered ? 'opacity-100' : 'opacity-0'}`}
+      className={`fixed inset-0 w-screen h-screen z-50 flex items-center justify-center p-4 transition-opacity duration-500 overflow-hidden select-none ${isRendered ? 'opacity-100' : 'opacity-0'}`}
       style={{
         // Họa tiết kẻ caro hồng-trắng ngọt ngào (Gingham Pink) y hệt video mẫu
         backgroundColor: '#fff0f3',
@@ -64,7 +63,7 @@ export default function IntroLetter({ couple, onEnterSite }) {
       {isOpen && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-20">
           {/* Quả bóng 1 (Bên trái) */}
-          <div className="absolute left-[25%] bottom-[30%] animate-[floatBalloon_5s_ease-out_forwards]">
+          <div className="absolute left-[20%] bottom-[25%] animate-[floatBalloon_5s_ease-out_forwards]">
             <div className="relative flex flex-col items-center">
               <div className="w-14 h-14 bg-pink-400 rounded-full flex items-center justify-center shadow-md after:content-[''] after:absolute after:bottom-[-4px] after:w-0 after:h-0 after:border-l-[6px] after:border-l-transparent after:border-r-[6px] after:border-r-transparent after:border-t-[8px] after:border-t-pink-400">
                 <Heart className="w-8 h-8 fill-white text-white opacity-90" />
@@ -76,7 +75,7 @@ export default function IntroLetter({ couple, onEnterSite }) {
           </div>
 
           {/* Quả bóng 2 (Giữa - Nhạt hơn) */}
-          <div className="absolute left-[48%] bottom-[32%] animate-[floatBalloon_6s_ease-out_0.3s_forwards]">
+          <div className="absolute left-[48%] bottom-[28%] animate-[floatBalloon_6s_ease-out_0.3s_forwards]">
             <div className="relative flex flex-col items-center">
               <div className="w-16 h-16 bg-pink-300 rounded-full flex items-center justify-center shadow-md after:content-[''] after:absolute after:bottom-[-4px] after:w-0 after:h-0 after:border-l-[6px] after:border-l-transparent after:border-r-[6px] after:border-r-transparent after:border-t-[8px] after:border-t-pink-300">
                 <Heart className="w-9 h-9 fill-white text-white opacity-90" />
@@ -88,7 +87,7 @@ export default function IntroLetter({ couple, onEnterSite }) {
           </div>
 
           {/* Quả bóng 3 (Bên phải - Đậm hơn) */}
-          <div className="absolute left-[68%] bottom-[29%] animate-[floatBalloon_4.5s_ease-out_0.6s_forwards]">
+          <div className="absolute left-[76%] bottom-[24%] animate-[floatBalloon_4.5s_ease-out_0.6s_forwards]">
             <div className="relative flex flex-col items-center">
               <div className="w-13 h-13 bg-rose-500 rounded-full flex items-center justify-center shadow-md after:content-[''] after:absolute after:bottom-[-4px] after:w-0 after:h-0 after:border-l-[5px] after:border-l-transparent after:border-r-[5px] after:border-r-transparent after:border-t-[7px] after:border-t-rose-500">
                 <Heart className="w-7 h-7 fill-white text-white opacity-90" />
@@ -101,7 +100,7 @@ export default function IntroLetter({ couple, onEnterSite }) {
         </div>
       )}
 
-      {/* CSS KEYFRAMES CHO BÓNG BAY */}
+      {/* CSS KEYFRAMES CHO BÓNG BAY VÀ HIỆU ỨNG TRÔI NỔI */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes floatBalloon {
           0% {
@@ -116,16 +115,27 @@ export default function IntroLetter({ couple, onEnterSite }) {
             opacity: 0;
           }
         }
+        @keyframes floatSlow {
+          0%, 100% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          50% {
+            transform: translateY(-10px) rotate(0.5deg);
+          }
+        }
+        .float-animation {
+          animation: floatSlow 3.5s ease-in-out infinite;
+        }
       `}} />
 
-      {/* KHUNG CHỨA TRUNG TÂM TUYỆT ĐỐI (Đảm bảo 100% nằm chính giữa màn hình) */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl flex flex-col items-center justify-center px-4">
+      {/* KHUNG CHỨA TRỰC TIẾP (FLEXBOX CHA ĐẢM BẢO CĂN GIỮA VÀ TO RÕ 100%) */}
+      <div className="w-full max-w-xl flex flex-col items-center justify-center px-4 relative z-30">
         
-        {/* ✉️ 1. PHONG BÌ CĂN GIỮA TUYỆT ĐỐI (Envelope) - Làm to hơn 15% */}
+        {/* ✉️ 1. PHONG BÌ CĂN GIỮA TUYỆT ĐỐI - Tăng kích thước thêm 15% */}
         {!showLetter && (
           <div 
             onClick={handleOpenEnvelope}
-            className={`group relative cursor-pointer select-none transition-all duration-500 transform hover:scale-105 active:scale-95 ${isOpen ? 'pointer-events-none' : 'animate-[bounce_3.5s_infinite]'}`}
+            className={`group relative cursor-pointer select-none transition-all duration-500 transform hover:scale-105 active:scale-95 float-animation`}
             style={{ width: '420px', height: '280px' }}
           >
             {/* Bóng đổ phong bì */}
@@ -138,7 +148,7 @@ export default function IntroLetter({ couple, onEnterSite }) {
 
             {/* Thư ló ra ngoài khi chưa mở (chữ thò ra cấu hình được) */}
             <div className={`absolute top-[-15px] inset-x-10 h-22 bg-[#fffdfa] border-t-2 border-x-2 border-pink-300 rounded-t-xl transition-all duration-500 shadow-sm flex items-center justify-center ${isOpen ? 'translate-y-4 opacity-0' : 'group-hover:translate-y-[-10px]'}`} style={{ zIndex: 5 }}>
-              <span className="font-handwriting text-pink-700 text-xl font-bold">
+              <span className="font-handwriting text-pink-700 text-xl font-bold text-center px-2">
                 {couple.introEnvelopeText || 'To the Love of My Life'}
               </span>
             </div>
@@ -154,26 +164,26 @@ export default function IntroLetter({ couple, onEnterSite }) {
             />
 
             {/* Các cánh gập bên trong */}
-            <div className="absolute inset-y-0 left-0 w-[210px] bg-[#f9f6ef] border-l-3 border-y-3 border-pink-400" style={{ clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)', zIndex: 8 }} />
-            <div className="absolute inset-y-0 right-0 w-[210px] bg-[#f9f6ef] border-r-3 border-y-3 border-pink-400" style={{ clipPath: 'polygon(100% 0%, 0% 50%, 100% 100%)', zIndex: 8 }} />
+            <div className="absolute inset-y-0 left-0 w-[212px] bg-[#f9f6ef] border-l-3 border-y-3 border-pink-400" style={{ clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)', zIndex: 8 }} />
+            <div className="absolute inset-y-0 right-0 w-[212px] bg-[#f9f6ef] border-r-3 border-y-3 border-pink-400" style={{ clipPath: 'polygon(100% 0%, 0% 50%, 100% 100%)', zIndex: 8 }} />
             <div className="absolute bottom-0 inset-x-0 h-[155px] bg-[#f5f2e8] border-b-3 border-x-3 border-pink-400 rounded-b-2xl" style={{ clipPath: 'polygon(0% 100%, 50% 0%, 100% 100%)', zIndex: 10 }} />
 
             {/* Con dấu sáp trái tim niêm phong */}
             <div 
-              className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-pink-500 border-2 border-pink-400 shadow-md flex items-center justify-center active:scale-90 transition-transform duration-300 ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100 animate-pulse'}`}
+              className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-pink-500 border-2 border-pink-400 shadow-md flex items-center justify-center active:scale-90 transition-transform duration-300 ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}
               style={{ zIndex: 15 }}
             >
-              <Heart className="w-8 h-8 fill-white text-white" />
+              <Heart className="w-8 h-8 fill-white text-white animate-pulse" />
             </div>
 
             {/* Nhãn click nhấp nháy bên dưới (Cấu hình được) */}
-            <div className="absolute bottom-[-50px] inset-x-0 text-center text-pink-600 font-bold text-sm tracking-widest">
+            <div className="absolute bottom-[-50px] inset-x-0 text-center text-pink-600 font-bold text-sm tracking-widest animate-pulse">
               {couple.introEnvelopeLabel || 'CLICK TO OPEN 💖'}
             </div>
           </div>
         )}
 
-        {/* 📜 2. LÁ THƯ TÌNH DẠNG THIỆP KÉP LẬT MỞ (Làm to rộng rãi, dễ đọc) */}
+        {/* 📜 2. LÁ THƯ TÌNH DẠNG THIỆP KÉP LẬT MỞ (Rộng rãi, nằm chính giữa) */}
         <div 
           className={`w-full bg-[#fcfbf9] rounded-2xl shadow-2xl border-4 border-pink-300 p-6 md:p-8 relative transition-all duration-1000 transform flex flex-col justify-between ${showLetter ? 'translate-y-0 scale-100 opacity-100 rotate-0' : 'translate-y-[200px] scale-75 opacity-0 rotate-6 pointer-events-none'}`}
           style={{
@@ -255,7 +265,7 @@ export default function IntroLetter({ couple, onEnterSite }) {
 
         </div>
 
-        {/* NÚT BẤM BƯỚC VÀO TRANG CHÍNH (Chữ trên nút cấu hình được) */}
+        {/* NÚT BẤM BƯỚC VÀO TRANG CHÍNH */}
         {showLetter && (
           <button
             onClick={handleClose}
