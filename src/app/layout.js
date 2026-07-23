@@ -1,5 +1,5 @@
 import "./globals.css";
-import { ThemeProvider } from "@/shared/providers/ThemeProvider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 export const metadata = {
   title: "MemoryOS - Preserving Life's Beautiful Moments",
