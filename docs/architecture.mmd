@@ -1,0 +1,36 @@
+graph TD
+    %% Client Layer
+    subgraph Client [Client Layer]
+        UI[React Components]
+        Context[Memory Context / State]
+        Hooks[Custom Hooks: useMemory, useTheme, useViewport]
+    end
+
+    %% Service & Action Layer
+    subgraph Core [Logic & Action Layer]
+        Services[Business Services: memory.service.ts, letter.service.ts]
+        Actions[Server Actions: memory.actions.ts, project.actions.ts]
+        Validation[Zod Schemas: memory.schema.ts]
+    end
+
+    %% Data & External Layer
+    subgraph Data [Data & External Layer]
+        SupabaseClient[Supabase Client Initialization]
+        SupabaseDB[(Supabase PostgreSQL Database)]
+        SupabaseStorage[(Supabase Storage Buckets)]
+        Cloudinary[(Cloudinary Media Delivery)]
+        GeminiAPI[Google Gemini AI Service]
+    end
+
+    %% Flows
+    UI <--> Hooks
+    Hooks <--> Context
+    Context <--> Services
+    Services <--> Actions
+    Actions <--> Validation
+    Actions <--> SupabaseClient
+    
+    SupabaseClient <--> SupabaseDB
+    SupabaseClient <--> SupabaseStorage
+    Services <--> GeminiAPI
+    UI <--> Cloudinary

@@ -1,0 +1,80 @@
+openapi: 3.0.3
+info:
+  title: Digital Memories Keekpsake API
+  description: API endpoints for managing memory uploads, AI generation, and sharing services.
+  version: 1.0.0
+paths:
+  /api/upload:
+    post:
+      summary: Upload file to storage
+      description: Validates, compresses, and uploads media assets (photos, videos, audio) directly to Cloudinary or Supabase Storage.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file object to upload (max 25MB)
+      responses:
+        '200':
+          description: Upload successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  url:
+                    type: string
+                    format: uri
+                    example: "https://res.cloudinary.com/demo/image/upload/v12345/uploads/image.jpg"
+        '400':
+          description: Invalid request or missing file
+        '500':
+          description: Internal upload failure
+  /api/ai:
+    post:
+      summary: Generate love letters, poems, or captions using Google Gemini AI
+      description: Invokes the Google Gemini model to process raw couple memories into beautifully formatted text.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - prompt
+                - type
+              properties:
+                prompt:
+                  type: string
+                  example: "Hôm nay anh đèo em đi lòng vòng quanh Hồ Tây ăn kem..."
+                type:
+                  type: string
+                  enum: [poem, letter, caption]
+                  example: "poem"
+                apiKey:
+                  type: string
+                  description: Optional local Gemini API Key override
+      responses:
+        '200':
+          description: AI Generation successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  result:
+                    type: string
+                    example: "Chiều Hồ Tây heo may làn gió thổi...\nHạt kem ngậy ngọt ngào đôi chúng mình..."
+        '500':
+          description: AI processing failed
