@@ -17,7 +17,7 @@
 * **Hover Lift (Nấc nhấc phong bì)**:
   * Khi hover: Phong bì nhấc lên nhẹ nhàng (`translateY(-8px)`) bằng spring physics (`stiffness: 300, damping: 20`).
 * **Lật nắp (Flip Envelope Lid)**:
-  * Xoay trục X (`rotateX: 180deg`) với perspective 3D đặt tại thẻ cha bọc (`perspective: 1200px`).
+  * Xoay trục X (`rotateX: 0deg` to `rotateX: 180deg`) với perspective 3D đặt tại thẻ cha bọc (`perspective: 1200px`).
 * **Kéo thư (Pull Letter Out)**:
   * Khi mở: Lá thư trượt lên từ trong lòng phong bì (`translateY(-100%)` rồi trượt lên nằm đè lên phong bì), zoom nhẹ camera (`scale: 1.05`) để đưa lá thư vào trung tâm màn hình của người đọc.
 

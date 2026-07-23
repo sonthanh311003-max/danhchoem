@@ -3,10 +3,8 @@
 -- Version 1.0
 -- -------------------------------------------------------------
 
--- Kích hoạt extension UUID
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 1. BẢNG NGƯỜI DÙNG (users)
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -19,7 +17,6 @@ CREATE TABLE IF NOT EXISTS users (
     deleted_at TIMESTAMP WITH TIME ZONE
 );
 
--- 2. BẢNG CẶP ĐÔI (couples)
 CREATE TABLE IF NOT EXISTS couples (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     owner_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
@@ -31,7 +28,6 @@ CREATE TABLE IF NOT EXISTS couples (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 3. BẢNG CHỦ ĐỀ GIAO DIỆN (themes)
 CREATE TABLE IF NOT EXISTS themes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) UNIQUE NOT NULL,
@@ -44,7 +40,6 @@ CREATE TABLE IF NOT EXISTS themes (
     preview_image TEXT
 );
 
--- 4. BẢNG DỰ ÁN (projects)
 CREATE TABLE IF NOT EXISTS projects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     couple_id UUID REFERENCES couples(id) ON DELETE CASCADE NOT NULL,
@@ -61,7 +56,6 @@ CREATE TABLE IF NOT EXISTS projects (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 5. BẢNG SỰ KIỆN KỶ NIỆM (memories)
 CREATE TABLE IF NOT EXISTS memories (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     project_id UUID REFERENCES projects(id) ON DELETE CASCADE NOT NULL,
@@ -81,7 +75,6 @@ CREATE TABLE IF NOT EXISTS memories (
     deleted_at TIMESTAMP WITH TIME ZONE
 );
 
--- 6. TÀI NGUYÊN MULTIMEDIA (memory_assets)
 CREATE TABLE IF NOT EXISTS memory_assets (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     memory_id UUID REFERENCES memories(id) ON DELETE CASCADE NOT NULL,
@@ -96,7 +89,6 @@ CREATE TABLE IF NOT EXISTS memory_assets (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 7. THƯ TÌNH VIẾT TAY (letters)
 CREATE TABLE IF NOT EXISTS letters (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     project_id UUID REFERENCES projects(id) ON DELETE CASCADE NOT NULL,
@@ -110,7 +102,6 @@ CREATE TABLE IF NOT EXISTS letters (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 8. LIÊN KẾT CHIA SẺ BẢO MẬT (shares)
 CREATE TABLE IF NOT EXISTS shares (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     project_id UUID REFERENCES projects(id) ON DELETE CASCADE NOT NULL,
@@ -122,7 +113,6 @@ CREATE TABLE IF NOT EXISTS shares (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 9. LƯU BÚT BẠN BÈ (comments)
 CREATE TABLE IF NOT EXISTS comments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     project_id UUID REFERENCES projects(id) ON DELETE CASCADE NOT NULL,
@@ -131,9 +121,6 @@ CREATE TABLE IF NOT EXISTS comments (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- -------------------------------------------------------------
--- INDEXES STRATEGY
--- -------------------------------------------------------------
 CREATE INDEX IF NOT EXISTS idx_projects_slug ON projects(slug);
 CREATE INDEX IF NOT EXISTS idx_projects_couple ON projects(couple_id);
 CREATE INDEX IF NOT EXISTS idx_memories_project ON memories(project_id);
@@ -142,20 +129,15 @@ CREATE INDEX IF NOT EXISTS idx_memories_emotion ON memories(emotion);
 CREATE INDEX IF NOT EXISTS idx_memory_assets_memory ON memory_assets(memory_id);
 CREATE INDEX IF NOT EXISTS idx_shares_token ON shares(token);
 
--- -------------------------------------------------------------
--- ROW LEVEL SECURITY (RLS) POLICIES
--- -------------------------------------------------------------
 ALTER TABLE couples ENABLE ROW LEVEL SECURITY;
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE memories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE letters ENABLE ROW LEVEL SECURITY;
 
--- Couples Policies
 CREATE POLICY couples_access_policy ON couples
     FOR ALL
     USING (owner_id = auth.uid() OR partner_id = auth.uid());
 
--- Projects Policies
 CREATE POLICY projects_read_policy ON projects
     FOR SELECT
     USING (
