@@ -8,13 +8,15 @@ import { SceneStage, ParticleField, GodRayLight, FloatingEnvelope, ParallaxLayer
 
 export default function Home() {
   const router = useRouter();
-  const { user, checkUser } = useAuthStore();
+  const { user, checkSession } = useAuthStore();
   const [sceneState, setSceneState] = useState(1); // 1: Dark, 2: Reveal library
 
   useEffect(() => {
     // Nạp phiên kiểm tra user hiện hành
-    checkUser();
-  }, [checkUser]);
+    if (checkSession) {
+      checkSession();
+    }
+  }, [checkSession]);
 
   useEffect(() => {
     // Sau 1 giây chuyển sang Scene 2 (Reveal)

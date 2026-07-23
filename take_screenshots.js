@@ -7,12 +7,23 @@ async function run() {
   const page = await browser.newPage();
   await page.setViewportSize({ width: 1280, height: 800 });
 
-  // Lưu thẳng vào thư mục Artifact để hiển thị trực quan cho người dùng
   const outputDir = 'C:\\Users\\Admin\\.gemini\\antigravity\\brain\\ea17df29-4cb0-4037-a306-3a7bac925e0a\\wizard_flow';
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
 
+  // 1. Chụp trang chủ
+  console.log('Truy cập trang chủ http://localhost:3000/...');
+  await page.goto('http://localhost:3000');
+  
+  console.log('Chụp ảnh Trang chủ Scene 1...');
+  await page.screenshot({ path: path.join(outputDir, 'home_scene1.png') });
+  
+  await page.waitForTimeout(3000); // Đợi nắng và phong bì hiện ra
+  console.log('Chụp ảnh Trang chủ Scene 3 (Volumetric Light + Envelope)...');
+  await page.screenshot({ path: path.join(outputDir, 'home_scene3.png') });
+
+  // 2. Chụp Wizard
   console.log('Truy cập http://localhost:3000/wizard...');
   await page.goto('http://localhost:3000/wizard');
   await page.waitForTimeout(2000);
@@ -34,7 +45,7 @@ async function run() {
   await page.screenshot({ path: path.join(outputDir, 'step_3.png') });
   await page.fill('input[type="text"]', 'Mùa thu yêu thương');
   await page.waitForTimeout(500);
-  await page.click('button:has-text("Tiếp tục")');
+  await page.click('button:has-text("Tiếp tục câu chuyện")');
   await page.waitForTimeout(1500);
 
   // STEP 4
@@ -51,7 +62,7 @@ async function run() {
   await page.click('form button');
   await page.waitForTimeout(1500);
   await page.screenshot({ path: path.join(outputDir, 'step_5_uploaded.png') });
-  await page.click('button:has-text("Tiếp tục")');
+  await page.click('button:has-text("Tiếp tục câu chuyện")');
   await page.waitForTimeout(1500);
 
   // STEP 6
@@ -69,14 +80,9 @@ async function run() {
   // STEP 8
   console.log('Chụp ảnh Step 8 (Generating)...');
   await page.screenshot({ path: path.join(outputDir, 'step_8.png') });
-  await page.waitForTimeout(4500); // Chờ chuyển hướng preview
-
-  // PREVIEW
-  console.log('Chụp ảnh Trang xem trước (Preview)...');
-  await page.screenshot({ path: path.join(outputDir, 'preview.png') });
 
   await browser.close();
-  console.log('Hoàn thành chụp ảnh toàn bộ luồng wizard!');
+  console.log('Hoàn thành chụp ảnh toàn bộ!');
 }
 
 run().catch(console.error);
