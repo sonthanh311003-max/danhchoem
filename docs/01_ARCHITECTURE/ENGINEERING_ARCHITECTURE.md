@@ -58,6 +58,17 @@ Every feature owns its components, hooks, animations, styles, and logic. No feat
 
 ---
 
+# PLUGIN-BASED EDITOR PLATFORM
+
+* **Editor Registry**: The core Editor framework does not hardcode any specific memory object. It acts as an orchestrator or registry.
+* **Self-Contained Plugins**: Every object (Letter, Book, Locket, Film Roll, Scrapbook) must be designed as an independent plugin.
+  * It defines its own **Canvas Component** (3D physics rendering).
+  * It defines its own **Inspector Controls Component** (properties config sidebar).
+  * It defines its own **Validation Schema & Context Structure**.
+* **Zero Modification Expansion**: Registering a new object (e.g. Scrapbook) must only involve adding it to the Editor Registry config. The core Toolbar, Sidebar, and Canvas layouts must remain untouched.
+
+---
+
 # MAX COMPONENT SIZE
 
 Preferred: < 200 lines.

@@ -26,6 +26,22 @@ Users edit memories, not layouts.
 
 ---
 
+## Plugin Registry Architecture
+The core Editor contains NO hardcoded memory object logic.
+Everything is dynamically resolved through a central **Plugin Registry Config**:
+```typescript
+interface ObjectPlugin {
+  id: string; // e.g. 'letter', 'book', 'locket'
+  CanvasComponent: React.ComponentType<any>;
+  InspectorComponent: React.ComponentType<any>;
+  schema: z.ZodSchema;
+  defaultData: any;
+}
+```
+Adding new experiences (Locket, Scrapbook, Memory Box) in the future requires registering a new plugin config object, keeping the core Editor codebase untouched.
+
+---
+
 ## Design Rules
 * Never use floating windows.
 * Keep everything clean, minimal, and premium (Apple-level polish).
