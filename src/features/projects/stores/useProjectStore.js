@@ -1,67 +1,84 @@
 import { create } from 'zustand';
+import { supabase } from '@/lib/supabase';
+import { projectService } from '@/services/project.service';
 
-export const useProjectStore = create((set, get) => ({
-  projects: [
-    // Tạm thời để Mock 2 dự án ban đầu để giao diện Welcome Screen sinh động ngay
-    {
-      id: 'project-1',
-      name: 'Kỷ niệm Ngày bên nhau',
-      recipient: 'My Partner',
-      theme: 'Classic',
-      updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 giờ trước
-    },
-    {
-      id: 'project-2',
-      name: 'Mùa thu Hà Nội cùng gia đình',
-      recipient: 'Family',
-      theme: 'Autumn',
-      updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(), // 3 ngày trước
-    }
-  ],
-  currentProject: null,
-  loading: false,
-  error: null,
-
-  createProject: async (projectData) => {
-    set({ loading: true });
-    try {
-      // Logic Zod Validation theo Task 04 Project Creation Service
-      if (!projectData.name || projectData.name.trim() === '') {
-        throw new Error('Tên dự án là bắt buộc.');
+export const useProjectStore = create((set, get) => {
+  
+  // Lắng nghe sự thay đổi trạng thái đăng nhập để tự động đồng bộ hóa dự án kỷ niệm
+  if (typeof window !== 'undefined') {
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        try {
+          set({ loading: true });
+          const userProjects = await projectService.getProjectsByUser(session.user.id);
+          set({ projects: userProjects, loading: false });
+        } catch (err) {
+          set({ error: err.message, loading: false });
+        }
+      } else {
+        set({ projects: [], currentProject: null });
       }
-
-      const newProject = {
-        id: `project-${Math.random().toString(36).substr(2, 9)}`,
-        name: projectData.name,
-        recipient: projectData.recipient || 'Myself',
-        celebration: projectData.celebration || 'Birthday',
-        theme: projectData.theme || 'Classic',
-        music: projectData.music || null,
-        images: projectData.images || [],
-        letterContent: '',
-        updatedAt: new Date().toISOString(),
-      };
-
-      set((state) => ({
-        projects: [newProject, ...state.projects],
-        currentProject: newProject,
-        loading: false
-      }));
-
-      return newProject.id;
-    } catch (err) {
-      set({ error: err.message, loading: false });
-      throw err;
-    }
-  },
-
-  setCurrentProject: (project) => set({ currentProject: project }),
-
-  getRecentProjects: () => {
-    const { projects } = get();
-    // Trả về tối đa 5 dự án xếp theo thời gian cập nhật mới nhất
-    return [...projects]
-      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-      .slice(0, 5);
+    });
   }
-}));
+
+  return {
+    projects: [],
+    currentProject: null,
+    loading: false,
+    error: null,
+
+    /**
+     * Load all projects from Supabase database for a specific user.
+     */
+    loadProjects: async (userId) => {
+      set({ loading: true, error: null });
+      try {
+        const userProjects = await projectService.getProjectsByUser(userId);
+        set({ projects: userProjects, loading: false });
+      } catch (err) {
+        set({ error: err.message, loading: false });
+        throw err;
+      }
+    },
+
+    /**
+     * Create a project, save it to the DB, and update the store projects list.
+     */
+    createProject: async (projectData) => {
+      set({ loading: true, error: null });
+      try {
+        if (!projectData.name || projectData.name.trim() === '') {
+          throw new Error('Tên dự án là bắt buộc.');
+        }
+
+        const project = await projectService.createProject(projectData);
+        
+        // Fetch lại toàn bộ danh sách để bảo đảm tính đúng đắn của cấu trúc dữ liệu join
+        const userProjects = await projectService.getProjectsByUser(project.user_id);
+        
+        set({
+          projects: userProjects,
+          currentProject: userProjects.find(p => p.id === project.id) || project,
+          loading: false
+        });
+
+        return project.id;
+      } catch (err) {
+        set({ error: err.message, loading: false });
+        throw err;
+      }
+    },
+
+    setCurrentProject: (project) => set({ currentProject: project }),
+
+    /**
+     * Get the 5 most recently updated projects.
+     */
+    getRecentProjects: () => {
+      const { projects } = get();
+      return [...projects]
+        .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+        .slice(0, 5);
+    }
+  };
+});
