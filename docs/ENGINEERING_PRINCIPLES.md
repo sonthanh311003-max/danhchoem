@@ -1,5 +1,12 @@
 # Engineering Principles
 
+## The MemoryOS Rule
+If any feature feels like a normal website, stop. Ask:
+**"How can this feel like a story instead of an interface?"**
+Prefer emotion over complexity. Prefer atmosphere over decoration. Prefer timeless design over trends. Every screen should make users feel they are holding a precious memory, not using software.
+
+---
+
 - **Scale First**: Never implement a feature without considering scalability.
 - **Composition**: Prefer composition over inheritance.
 - **Fluid Layout**: Every new feature must include responsive behavior.
