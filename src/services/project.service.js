@@ -3,12 +3,36 @@ import { supabase } from '@/lib/supabase';
 export const projectService = {
   /**
    * Create a new project along with its associated images.
+   * Auto-falls back to anonymous sign-in or session checks to guarantee smooth creation flow.
    */
   async createProject(data) {
     try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) {
-        throw new Error('Vui lòng đăng nhập để thực hiện lưu trữ kỉ vật.');
+      let user = null;
+
+      // 1. Kiểm tra user hiện hành từ Supabase auth
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (!userError && userData?.user) {
+        user = userData.user;
+      } else {
+        // 2. Thử lấy từ session cache dự phòng
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData?.session?.user) {
+          user = sessionData.session.user;
+        } else {
+          // 3. Tự động đăng nhập ẩn danh để đảm bảo người dùng chưa đăng nhập vẫn lưu được kỉ vật
+          try {
+            const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously();
+            if (!anonError && anonData?.user) {
+              user = anonData.user;
+            }
+          } catch (e) {
+            console.warn('[ProjectService] Anonymous sign-in failed/not supported:', e);
+          }
+        }
+      }
+
+      if (!user) {
+        throw new Error('Vui lòng đăng nhập tài khoản để thực hiện lưu trữ kỉ vật.');
       }
 
       // Insert project
@@ -71,7 +95,6 @@ export const projectService = {
         throw new Error('Không thể tải danh sách kỷ niệm từ cơ sở dữ liệu.');
       }
 
-      // Khớp cấu trúc store cũ (convert key camelCase nếu cần, ở đây ta map letter_content thành letterContent)
       return data.map(project => ({
         ...project,
         letterContent: project.letter_content,
@@ -114,7 +137,6 @@ export const projectService = {
    */
   async updateProject(id, patch) {
     try {
-      // Map camelCase keys to snake_case for PostgreSQL
       const dbPatch = {};
       if (patch.name !== undefined) dbPatch.name = patch.name;
       if (patch.recipient !== undefined) dbPatch.recipient = patch.recipient;
@@ -148,7 +170,7 @@ export const projectService = {
   },
 
   /**
-   * Delete a project. Cascade delete takes care of images.
+   * Delete a project.
    */
   async deleteProject(id) {
     try {
