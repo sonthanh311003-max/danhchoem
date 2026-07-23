@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useMemory } from '@/lib/MemoryContext';
 import { 
   Settings, Calendar, Image, Music, MapPin, Heart, Plus, Trash2, 
-  Sparkles, Save, BookOpen, CheckSquare, MessageSquare, Key, ArrowLeft, RefreshCw, Eye
+  Sparkles, Save, BookOpen, CheckSquare, MessageSquare, Key, ArrowLeft, RefreshCw, Eye, Upload
 } from 'lucide-react';
 import Link from 'next/link';
 import confetti from 'canvas-confetti';
@@ -84,6 +84,75 @@ export default function AdminDashboard() {
 
   // Form states cho Bucket List mới
   const [newBucketTask, setNewBucketTask] = useState('');
+
+  // States và hàm xử lý tải ảnh lên trực tiếp
+  const [uploadingField, setUploadingField] = useState(null);
+
+  const handleFileUpload = async (e, setUrlCallback, fieldId) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 15 * 1024 * 1024) {
+      alert("Kích thước file quá lớn (tối đa 15MB). Vui lòng chọn file nhẹ hơn.");
+      return;
+    }
+
+    setUploadingField(fieldId);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.url) {
+        setUrlCallback(data.url);
+        alert("Tải file lên thành công!");
+      } else {
+        // Fallback Base64 khi chua cau hinh Supabase
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setUrlCallback(reader.result);
+          alert("Đã lưu ảnh cục bộ thành công! (Chế độ chạy thử nghiệm offline)");
+        };
+        reader.readAsDataURL(file);
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      // Fallback
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUrlCallback(reader.result);
+        alert("Đã lưu ảnh cục bộ thành công! (Chế độ chạy thử nghiệm offline)");
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setUploadingField(null);
+    }
+  };
+
+  const FileUploadButton = ({ label, onUploadComplete, fieldId }) => {
+    return (
+      <div className="mt-2">
+        <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl border border-rose-200 transition-colors shadow-sm active:scale-95">
+          <Upload className="w-3.5 h-3.5" />
+          <span>{uploadingField === fieldId ? "Đang tải lên..." : (label || "Tải ảnh từ máy")}</span>
+          <input
+            type="file"
+            accept="image/*,video/*"
+            disabled={uploadingField !== null}
+            onChange={(e) => handleFileUpload(e, onUploadComplete, fieldId)}
+            className="hidden"
+          />
+        </label>
+      </div>
+    );
+  };
 
   // States cho AI Memory Assistant
   const [aiInput, setAiInput] = useState('');
@@ -347,6 +416,7 @@ export default function AdminDashboard() {
                     type="text" value={avatar1} onChange={(e) => setAvatar1(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm bg-gray-50"
                   />
+                  <FileUploadButton label="Tải ảnh lên trực tiếp" onUploadComplete={setAvatar1} fieldId="avatar1" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Ảnh người 2 (Link URL)</label>
@@ -354,6 +424,7 @@ export default function AdminDashboard() {
                     type="text" value={avatar2} onChange={(e) => setAvatar2(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm bg-gray-50"
                   />
+                  <FileUploadButton label="Tải ảnh lên trực tiếp" onUploadComplete={setAvatar2} fieldId="avatar2" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Ảnh nền trang bìa (Link URL)</label>
@@ -361,6 +432,7 @@ export default function AdminDashboard() {
                     type="text" value={coverImage} onChange={(e) => setCoverImage(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm bg-gray-50"
                   />
+                  <FileUploadButton label="Tải ảnh lên trực tiếp" onUploadComplete={setCoverImage} fieldId="coverImage" />
                 </div>
               </div>
 
@@ -545,6 +617,11 @@ export default function AdminDashboard() {
                       onChange={(e) => setNewTimeline({...newTimeline, mediaUrl: e.target.value})}
                       className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm bg-gray-50"
                     />
+                    <FileUploadButton 
+                      label="Tải ảnh/video lên trực tiếp" 
+                      onUploadComplete={(url) => setNewTimeline({...newTimeline, mediaUrl: url, mediaType: url.includes('video') || url.includes('mp4') || url.includes('data:video') ? 'video' : 'image'})} 
+                      fieldId="newTimelineMedia" 
+                    />
                   </div>
                 </div>
 
@@ -623,6 +700,11 @@ export default function AdminDashboard() {
                       value={newPhoto.url}
                       onChange={(e) => setNewPhoto({...newPhoto, url: e.target.value})}
                       className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm bg-gray-50"
+                    />
+                    <FileUploadButton 
+                      label="Tải ảnh lên trực tiếp" 
+                      onUploadComplete={(url) => setNewPhoto({...newPhoto, url: url})} 
+                      fieldId="newAlbumPhoto" 
                     />
                   </div>
                   <div>
