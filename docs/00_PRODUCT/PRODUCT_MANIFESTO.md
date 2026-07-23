@@ -21,6 +21,10 @@ Digital Memories is not a product. It is an emotional keepsake.
 * **Emotion Over Information**: Every pixel, whitespace, and animation must serve one purpose: to evoke curiosity, warmth, joy, nostalgia, and love.
 * **Keepsake Realism**: The user interface disappears. It is replaced by realistic digital memories (letters, envelopes, paper, locket, leather diary, stamps, postmarks).
 * **Luxury & Minimalist**: Luxury is not about adding decorations. It is about removing distractions, embracing whitespace, and utilizing high-fashion typography (`Cormorant Garamond`).
+* **Guided Creation Flow (Apple Setup Style)**:
+  * We never drop users into a blank, complex editor canvas first (avoiding Canva, WordPress, or Framer styles).
+  * The creation process is a guided emotional conversation: answering simple questions, uploading photos, and sharing raw stories.
+  * The system automatically generates the first beautiful draft. The editor serves ONLY as a place for minor fine-tuning and polishing.
 
 ---
 
