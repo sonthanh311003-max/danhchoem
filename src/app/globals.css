@@ -1,176 +1,92 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&family=Lora:ital,wght@0,400..700;1,400..700&family=Cinzel:wght@400..900&family=Orbitron:wght@400..900&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Quicksand:wght@300..700&family=Caveat:wght@400..700&family=Dancing+Script:wght@400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Inter:wght@300..700&family=Caveat:wght@400..700&display=swap');
 @import "tailwindcss";
 
 /* -------------------------------------------------------------
-   HỆ THỐNG THEME (CSS VARIABLES)
+   HỆ THỐNG THEME CAO CẤP MỚI (EDITORIAL & LUXURY STYLE)
    ------------------------------------------------------------- */
 
 :root {
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-}
-
-/* Theme 1: Pink (🌸 Lãng mạn ngọt ngào) */
-.theme-pink {
-  --color-primary: #ff758f;
-  --color-primary-hover: #ff5277;
-  --color-secondary: #ffb3c1;
-  --color-bg: #fff0f3;
-  --color-card: rgba(255, 255, 255, 0.85);
-  --color-text: #590d22;
-  --color-text-muted: #a4133c;
-  --color-border: #ffccd5;
-  --color-accent: #ff4d6d;
-  --font-display: 'Playfair Display', serif;
-}
-
-/* Theme 2: Galaxy (🌌 Vũ trụ sâu thẳm) */
-.theme-galaxy {
-  --color-primary: #a855f7;
-  --color-primary-hover: #c084fc;
-  --color-secondary: #3b82f6;
-  --color-bg: #03001e;
-  --color-card: rgba(11, 11, 38, 0.75);
-  --color-text: #f3f4f6;
-  --color-text-muted: #a78bfa;
-  --color-border: rgba(139, 92, 246, 0.3);
-  --color-accent: #ec4899;
-  --font-display: 'Orbitron', sans-serif;
-}
-
-/* Theme 3: Nature (🌿 Yên bình mộc mạc) */
-.theme-nature {
-  --color-primary: #556b2f;
-  --color-primary-hover: #6b8e23;
-  --color-secondary: #a9dfbf;
-  --color-bg: #f4f9f4;
-  --color-card: rgba(255, 255, 255, 0.9);
-  --color-text: #1e3f20;
-  --color-text-muted: #2d5a27;
-  --color-border: #d4efdf;
-  --color-accent: #e59866;
-  --font-display: 'Lora', serif;
-}
-
-/* Theme 4: Christmas (🎄 Ấm cúng Giáng sinh) */
-.theme-christmas {
-  --color-primary: #b7091a;
-  --color-primary-hover: #900c1c;
-  --color-secondary: #165b33;
-  --color-bg: #f8fcf9;
-  --color-card: rgba(255, 255, 255, 0.9);
-  --color-text: #0f2d19;
-  --color-text-muted: #187f43;
-  --color-border: #d2b48c;
-  --color-accent: #f8b229;
-  --font-display: 'Cinzel', serif;
-}
-
-/* Theme 5: Pixel (🎮 Game Retro 8-bit) */
-.theme-pixel {
-  --color-primary: #39ff14;
-  --color-primary-hover: #2cd40f;
-  --color-secondary: #00ffff;
-  --color-bg: #111111;
-  --color-card: #222222;
-  --color-text: #ffffff;
-  --color-text-muted: #aaaaaa;
-  --color-border: #39ff14;
-  --color-accent: #ff007f;
-  --font-display: 'Courier New', Courier, monospace;
-  --font-sans: 'Courier New', Courier, monospace;
-}
-
-/* Theme 6: Dark (🖤 Huyền bí tối giản) */
-.theme-dark {
-  --color-primary: #f3f4f6;
-  --color-primary-hover: #ffffff;
-  --color-secondary: #374151;
-  --color-bg: #09090b;
-  --color-card: rgba(24, 24, 27, 0.9);
-  --color-text: #f4f4f5;
-  --color-text-muted: #a1a1aa;
-  --color-border: #27272a;
-  --color-accent: #e4e4e7;
-  --font-display: 'Inter', sans-serif;
-}
-
-/* Theme 7: Luxury (✨ Hoàng gia sang trọng) */
-.theme-luxury {
-  --color-primary: #d4af37; /* Metallic Gold */
-  --color-primary-hover: #f3e5ab;
-  --color-secondary: #1a1a1a;
-  --color-bg: #0a0a0c;
-  --color-card: rgba(22, 22, 26, 0.85);
-  --color-text: #f5f5f7;
-  --color-text-muted: #cfb53b;
-  --color-border: rgba(212, 175, 55, 0.3);
-  --color-accent: #cfb53b;
+  --color-bg: #FFF9F8;             /* Kem lụa cao cấp */
+  --color-secondary: #FFFFFF;      /* Nền phụ trắng tinh */
+  --color-text: #2B2B2B;           /* Xám than ấm áp */
+  --color-text-muted: #7A7A7A;     /* Xám nhạt hơn cho phụ đề */
+  --color-accent: #E96A87;         /* Hồng ấm thanh lịch làm điểm nhấn */
+  --color-soft-accent: #F8DCE4;    /* Khối đệm mờ hồng dịu */
+  --color-gold: #D9B36A;           /* Vàng kim quý phái (con dấu sáp, kẹp giấy) */
+  --color-border: rgba(233, 106, 135, 0.08); /* Viền mờ tịt siêu tinh tế */
+  
+  --font-sans: 'Inter', sans-serif;
   --font-display: 'Cormorant Garamond', serif;
+  --font-handwriting: 'Caveat', cursive;
 }
-
-/* Theme 8: Anime (🌸 Pastel dễ thương) */
-.theme-anime {
-  --color-primary: #ff9ebb;
-  --color-primary-hover: #ff7fa4;
-  --color-secondary: #a3e4d7;
-  --color-bg: #fdf5e6; /* Old Lace */
-  --color-card: rgba(255, 255, 255, 0.95);
-  --color-text: #4a235a;
-  --color-text-muted: #7d3c98;
-  --color-border: #fadbd8;
-  --color-accent: #f5b041;
-  --font-display: 'Quicksand', sans-serif;
-}
-
-/* -------------------------------------------------------------
-   ĐỊNH NGHĨA STYLES ÁP DỤNG BIẾN CSS
-   ------------------------------------------------------------- */
 
 body {
   background-color: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
-  transition: background-color 0.5s ease, color 0.5s ease;
   overflow-x: hidden;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .font-display {
-  font-family: var(--font-display), var(--font-sans);
+  font-family: var(--font-display), serif;
+}
+
+.font-handwriting {
+  font-family: var(--font-handwriting), cursive;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
   background: var(--color-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-primary);
-  border-radius: 4px;
+  background: rgba(233, 106, 135, 0.2);
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-primary-hover);
+  background: var(--color-accent);
 }
 
-/* Glassmorphism Cards */
+/* Glassmorphism tối giản cao cấp */
 .glass-card {
-  background: var(--color-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--color-border);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 50px -12px rgba(233, 106, 135, 0.04);
 }
 
-/* Animation cho cánh hoa rơi / tuyết rơi / lá rơi */
+/* Animation nhẹ nhàng tinh tế */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Particle rơi mượt mà mờ ảo (Hạn chế 80% hạt bay so với trước) */
 @keyframes falling {
   0% {
     transform: translateY(-10vh) translateX(0) rotate(0deg);
-    opacity: 1;
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.45;
+  }
+  90% {
+    opacity: 0.35;
   }
   100% {
-    transform: translateY(110vh) translateX(100px) rotate(360deg);
-    opacity: 0.3;
+    transform: translateY(110vh) translateX(50px) rotate(180deg);
+    opacity: 0;
   }
 }
 
@@ -178,6 +94,6 @@ body {
   position: fixed;
   top: -20px;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 49;
   animation: falling linear infinite;
 }

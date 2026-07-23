@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useMemory } from '@/lib/MemoryContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, Calendar, Info } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 
 export default function PhotoAlbum() {
   const { albums } = useMemory();
@@ -13,7 +13,7 @@ export default function PhotoAlbum() {
   // Lấy danh sách các năm duy nhất từ album
   const years = useMemo(() => {
     const allYears = albums.map(item => item.year);
-    const uniqueYears = [...new Set(allYears)].sort((a, b) => b - a); // Năm mới nhất trước
+    const uniqueYears = [...new Set(allYears)].sort((a, b) => b - a);
     return ['all', ...uniqueYears];
   }, [albums]);
 
@@ -23,7 +23,23 @@ export default function PhotoAlbum() {
     return albums.filter(item => item.year === Number(selectedYear));
   }, [albums, selectedYear]);
 
-  // Các hàm điều khiển Lightbox
+  // Điều hướng bằng bàn phím
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (activePhotoIndex === null) return;
+      if (e.key === 'ArrowRight') {
+        setActivePhotoIndex((prev) => (prev + 1) % filteredAlbums.length);
+      } else if (e.key === 'ArrowLeft') {
+        setActivePhotoIndex((prev) => (prev - 1 + filteredAlbums.length) % filteredAlbums.length);
+      } else if (e.key === 'Escape') {
+        setActivePhotoIndex(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activePhotoIndex, filteredAlbums]);
+
   const openLightbox = (index) => {
     setActivePhotoIndex(index);
   };
@@ -49,13 +65,21 @@ export default function PhotoAlbum() {
   const currentPhoto = activePhotoIndex !== null ? filteredAlbums[activePhotoIndex] : null;
 
   return (
-    <div className="py-12 px-4 max-w-6xl mx-auto">
-      <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 font-display text-[var(--color-primary)]">
-        Album Kỷ Niệm
-      </h2>
+    <div className="py-24 px-4 max-w-6xl mx-auto select-none">
+      
+      {/* Tiêu đề mục phong cách tạp chí */}
+      <div className="text-center mb-16 space-y-4">
+        <span className="text-[10px] tracking-[0.35em] uppercase text-[#E96A87] font-sans font-semibold">
+          MEMORIES GALLERY
+        </span>
+        <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-light text-[#2B2B2B] tracking-wide">
+          Kho Báu Kỷ Niệm
+        </h2>
+        <div className="w-10 h-[1px] bg-[#E96A87]/40 mx-auto mt-4" />
+      </div>
 
-      {/* Bộ lọc năm */}
-      <div className="flex flex-wrap justify-center gap-2 mb-10">
+      {/* Bộ lọc năm tối giản (Editorial Tabs) */}
+      <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8 mb-16 border-b border-pink-100/10 pb-4 max-w-md mx-auto">
         {years.map((year) => (
           <button
             key={year}
@@ -63,46 +87,53 @@ export default function PhotoAlbum() {
               setSelectedYear(year);
               setActivePhotoIndex(null);
             }}
-            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 border
+            className={`text-sm tracking-widest uppercase transition-all duration-300 relative pb-2 font-medium font-sans
               ${selectedYear === year
-                ? 'bg-[var(--color-primary)] text-white border-transparent shadow-md scale-105'
-                : 'bg-white text-[var(--color-text)] border-[var(--color-border)] hover:bg-gray-50'
+                ? 'text-[#E96A87] scale-105'
+                : 'text-[#7A7A7A] hover:text-[#2B2B2B]'
               }`}
           >
-            {year === 'all' ? 'Tất cả' : `Năm ${year}`}
+            {year === 'all' ? 'Tất cả' : year}
+            {selectedYear === year && (
+              <motion.div 
+                layoutId="activeTabBorder"
+                className="absolute bottom-0 inset-x-0 h-[1px] bg-[#E96A87]"
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              />
+            )}
           </button>
         ))}
       </div>
 
-      {/* Masonry Layout */}
+      {/* Bố cục Masonry rộng rãi (Pinterest Style) */}
       {filteredAlbums.length === 0 ? (
-        <p className="text-center text-[var(--color-text-muted)] italic">Không có bức ảnh nào trong năm này...</p>
+        <p className="text-center text-[#7A7A7A] italic font-serif py-12">Không có bức ảnh nào trong năm này...</p>
       ) : (
-        <div className="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4">
+        <div className="columns-1 sm:columns-2 md:columns-3 gap-6 space-y-6">
           {filteredAlbums.map((photo, index) => (
             <motion.div
               key={photo.id || index}
-              className="break-inside-avoid glass-card rounded-2xl overflow-hidden border cursor-pointer relative group shadow-sm hover:shadow-md transition-all duration-300"
+              className="break-inside-avoid overflow-hidden rounded-lg cursor-pointer relative group bg-white/5 border border-pink-100/5 shadow-sm"
               onClick={() => openLightbox(index)}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4 }}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             >
               <img
                 src={photo.url}
                 alt={photo.caption || "Love Memory"}
-                className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-auto object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105"
                 loading="lazy"
               />
               
-              {/* Overlay Caption khi hover */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-end">
-                <p className="text-white text-sm font-semibold mb-1 font-display line-clamp-2">
+              {/* Overlay tối giản hiện lên khi hover */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 p-6 flex flex-col justify-end text-left">
+                <p className="text-white text-base font-display font-light leading-snug mb-2 line-clamp-2">
                   {photo.caption}
                 </p>
-                <span className="text-white/80 text-xs flex items-center gap-1">
-                  <Calendar className="w-3 h-3" />
+                <span className="text-white/70 text-[10px] tracking-widest uppercase font-sans font-light flex items-center gap-1">
+                  <Calendar className="w-3 h-3 text-[#E96A87]" />
                   {new Date(photo.date).toLocaleDateString('vi-VN')}
                 </span>
               </div>
@@ -111,7 +142,7 @@ export default function PhotoAlbum() {
         </div>
       )}
 
-      {/* Lightbox Modal (Phóng to ảnh) */}
+      {/* Lightbox Modal Cao Cấp (Nền tối tĩnh lặng, hỗ trợ phím mũi tên & ESC) */}
       <AnimatePresence>
         {currentPhoto && (
           <motion.div
@@ -121,69 +152,67 @@ export default function PhotoAlbum() {
             exit={{ opacity: 0 }}
             onClick={closeLightbox}
           >
-            {/* Nút đóng */}
+            {/* Nút đóng mảnh dẻ */}
             <button
               onClick={closeLightbox}
-              className="absolute top-4 right-4 text-white/70 hover:text-white p-2 hover:bg-white/10 rounded-full transition-colors"
+              className="absolute top-6 right-6 text-white/50 hover:text-white p-2 hover:bg-white/5 rounded-full transition-colors z-50"
             >
-              <X className="w-8 h-8" />
+              <X className="w-8 h-8 font-light" />
             </button>
 
             {/* Điều hướng Trái */}
             <button
               onClick={prevPhoto}
-              className="absolute left-2 md:left-6 text-white/50 hover:text-white p-2 hover:bg-white/10 rounded-full transition-all"
+              className="absolute left-4 md:left-8 text-white/40 hover:text-white p-3 hover:bg-white/5 rounded-full transition-all z-50"
             >
-              <ChevronLeft className="w-10 h-10 md:w-12 md:h-12" />
+              <ChevronLeft className="w-8 h-8 md:w-10 h-10" />
             </button>
 
             {/* Khung ảnh chính */}
             <motion.div
               className="max-w-4xl max-h-[75vh] relative flex flex-col items-center justify-center"
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              onClick={(e) => e.stopPropagation()} // Tránh đóng lightbox khi click vào ảnh
+              initial={{ scale: 0.96, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.96, opacity: 0 }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              onClick={(e) => e.stopPropagation()}
             >
               <img
                 src={currentPhoto.url}
                 alt={currentPhoto.caption}
-                className="max-w-full max-h-[70vh] rounded-xl object-contain border border-white/10 shadow-2xl"
+                className="max-w-full max-h-[68vh] rounded-lg object-contain border border-white/5 shadow-2xl"
               />
             </motion.div>
 
             {/* Info Box dưới ảnh */}
             <div 
-              className="mt-6 text-center text-white max-w-xl px-4"
+              className="mt-8 text-center text-white max-w-xl px-4 z-40"
               onClick={(e) => e.stopPropagation()}
             >
-              <p className="text-lg md:text-xl font-medium font-display leading-snug">
+              <p className="font-display text-xl md:text-2xl font-light leading-relaxed tracking-wide text-zinc-100">
                 {currentPhoto.caption}
               </p>
-              <div className="flex items-center justify-center gap-4 mt-2 text-sm text-white/60">
+              <div className="flex items-center justify-center gap-3 mt-3 text-[10px] uppercase tracking-[0.25em] text-zinc-500 font-sans font-light">
                 <span className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  {new Date(currentPhoto.date).toLocaleDateString('vi-VN', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                  })}
+                  <Calendar className="w-3.5 h-3.5 text-[#E96A87]" />
+                  {new Date(currentPhoto.date).toLocaleDateString('vi-VN')}
                 </span>
                 <span>•</span>
-                <span>Năm {currentPhoto.year}</span>
+                <span>Year {currentPhoto.year}</span>
               </div>
             </div>
 
             {/* Điều hướng Phải */}
             <button
               onClick={nextPhoto}
-              className="absolute right-2 md:right-6 text-white/50 hover:text-white p-2 hover:bg-white/10 rounded-full transition-all"
+              className="absolute right-4 md:right-8 text-white/40 hover:text-white p-3 hover:bg-white/5 rounded-full transition-all z-50"
             >
-              <ChevronRight className="w-10 h-10 md:w-12 md:h-12" />
+              <ChevronRight className="w-8 h-8 md:w-10 h-10" />
             </button>
           </motion.div>
         )}
       </AnimatePresence>
+      
     </div>
   );
 }

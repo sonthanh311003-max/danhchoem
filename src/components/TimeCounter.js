@@ -27,7 +27,6 @@ export default function TimeCounter() {
 
         setTimeLeft({ days, hours, minutes, seconds });
       } else {
-        // Nếu ngày kỷ niệm ở tương lai
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       }
     };
@@ -39,53 +38,39 @@ export default function TimeCounter() {
   }, [couple.anniversaryDate]);
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 my-10 max-w-2xl mx-auto">
-      <h3 className="text-xl md:text-2xl font-semibold mb-6 text-center font-display flex items-center gap-2">
-        Chúng mình đã bên nhau được
-        <Heart className="w-6 h-6 text-red-500 fill-red-500 animate-pulse inline-block" />
-      </h3>
+    <div className="flex flex-col items-center justify-center py-16 px-4 max-w-4xl mx-auto text-center select-none">
       
-      <div className="grid grid-cols-4 gap-3 md:gap-6 w-full max-w-lg">
-        {/* Days */}
-        <div className="glass-card rounded-2xl p-4 flex flex-col items-center justify-center border transition-all duration-300 transform hover:scale-105">
-          <span className="text-3xl md:text-5xl font-bold font-display text-[var(--color-primary)]">
-            {timeLeft.days}
-          </span>
-          <span className="text-xs md:text-sm uppercase tracking-wider text-[var(--color-text-muted)] mt-2 font-medium">
-            Ngày
-          </span>
-        </div>
+      {/* Tiêu đề phụ thanh nhã */}
+      <span className="text-xs md:text-sm tracking-[0.25em] uppercase text-[#7A7A7A] font-sans font-medium mb-6 flex items-center gap-2">
+        <span>Our Journey Continued For</span>
+        <Heart className="w-3.5 h-3.5 text-[#E96A87] fill-[#E96A87]/30" />
+      </span>
 
-        {/* Hours */}
-        <div className="glass-card rounded-2xl p-4 flex flex-col items-center justify-center border transition-all duration-300 transform hover:scale-105">
-          <span className="text-3xl md:text-5xl font-bold font-display text-[var(--color-primary)]">
-            {String(timeLeft.hours).padStart(2, '0')}
-          </span>
-          <span className="text-xs md:text-sm uppercase tracking-wider text-[var(--color-text-muted)] mt-2 font-medium">
-            Giờ
-          </span>
-        </div>
+      {/* Số ngày khổng lồ (Gia tăng thị giác cực mạnh) */}
+      <div className="flex flex-col items-center justify-center my-4 animate-fade-in">
+        <span className="font-display text-8xl md:text-[10rem] font-light leading-none text-[#2B2B2B] tracking-tight">
+          {timeLeft.days.toLocaleString()}
+        </span>
+        <span className="font-display italic text-2xl md:text-3xl text-[#E96A87] font-light mt-4">
+          beautiful days
+        </span>
+      </div>
 
-        {/* Minutes */}
-        <div className="glass-card rounded-2xl p-4 flex flex-col items-center justify-center border transition-all duration-300 transform hover:scale-105">
-          <span className="text-3xl md:text-5xl font-bold font-display text-[var(--color-primary)]">
-            {String(timeLeft.minutes).padStart(2, '0')}
-          </span>
-          <span className="text-xs md:text-sm uppercase tracking-wider text-[var(--color-text-muted)] mt-2 font-medium">
-            Phút
-          </span>
+      {/* Giờ, phút, giây phụ mỏng manh ở dưới cùng */}
+      <div className="mt-12 flex items-center justify-center gap-3 md:gap-5 text-xs md:text-sm text-[#7A7A7A] tracking-[0.15em] font-sans font-light border-t border-pink-100/10 pt-6 w-full max-w-md">
+        <div>
+          <span className="font-medium text-[#2B2B2B]">{String(timeLeft.hours).padStart(2, '0')}</span>h
         </div>
-
-        {/* Seconds */}
-        <div className="glass-card rounded-2xl p-4 flex flex-col items-center justify-center border transition-all duration-300 transform hover:scale-105">
-          <span className="text-3xl md:text-5xl font-bold font-display text-[var(--color-primary)]">
-            {String(timeLeft.seconds).padStart(2, '0')}
-          </span>
-          <span className="text-xs md:text-sm uppercase tracking-wider text-[var(--color-text-muted)] mt-2 font-medium">
-            Giây
-          </span>
+        <span className="text-[#E96A87]/30">•</span>
+        <div>
+          <span className="font-medium text-[#2B2B2B]">{String(timeLeft.minutes).padStart(2, '0')}</span>m
+        </div>
+        <span className="text-[#E96A87]/30">•</span>
+        <div>
+          <span className="font-medium text-[#2B2B2B]">{String(timeLeft.seconds).padStart(2, '0')}</span>s
         </div>
       </div>
+      
     </div>
   );
 }

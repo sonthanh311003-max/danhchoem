@@ -25,98 +25,91 @@ export default function SurpriseButton() {
     const nextCount = clickCount + 1;
     setClickCount(nextCount);
 
-    // Bắn pháo hoa Confetti
     if (nextCount % 5 === 0) {
-      // Pháo hoa lớn mỗi 5 lần bấm
       const duration = 2 * 1000;
       const animationEnd = Date.now() + duration;
-      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
-
+      const defaults = { startVelocity: 25, spread: 360, ticks: 50, zIndex: 1000 };
       const randomInRange = (min, max) => Math.random() * (max - min) + min;
 
       const interval = setInterval(function() {
         const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) return clearInterval(interval);
 
-        if (timeLeft <= 0) {
-          return clearInterval(interval);
-        }
-
-        const particleCount = 50 * (timeLeft / duration);
-        confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
-        confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+        const particleCount = 45 * (timeLeft / duration);
+        confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }, colors: ['#E96A87', '#D9B36A', '#ffffff'] }));
+        confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }, colors: ['#E96A87', '#D9B36A', '#ffffff'] }));
       }, 250);
     } else {
-      // Confetti nhỏ bình thường
       confetti({
-        particleCount: 40,
+        particleCount: 35,
         angle: 60,
-        spread: 55,
-        origin: { x: 0 }
+        spread: 50,
+        origin: { x: 0 },
+        colors: ['#E96A87', '#D9B36A', '#ffffff']
       });
       confetti({
-        particleCount: 40,
+        particleCount: 35,
         angle: 120,
-        spread: 55,
-        origin: { x: 1 }
+        spread: 50,
+        origin: { x: 1 },
+        colors: ['#E96A87', '#D9B36A', '#ffffff']
       });
     }
 
-    // Chọn thông điệp tiếp theo
     const randomMsg = SURPRISE_MESSAGES[Math.floor(Math.random() * SURPRISE_MESSAGES.length)];
     setMessage(randomMsg);
     setIsShowingMessage(true);
 
-    // Ẩn thông điệp sau 3 giây
     setTimeout(() => {
       setIsShowingMessage(false);
-    }, 3000);
+    }, 2800);
   };
 
   return (
-    <div className="py-12 px-4 text-center max-w-sm mx-auto flex flex-col items-center">
+    <div className="py-12 px-4 text-center max-w-sm mx-auto flex flex-col items-center select-none">
       
-      {/* Hiển thị thông điệp ẩn hiện */}
-      <div className="h-16 flex items-center justify-center mb-4">
+      {/* Khung hiển thị tin nhắn vẽ tay */}
+      <div className="h-16 flex items-center justify-center mb-6">
         <AnimatePresence mode="wait">
           {isShowingMessage && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.8, y: 10 }}
+              initial={{ opacity: 0, scale: 0.9, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.8, y: -10 }}
-              className="bg-white/90 border border-rose-200 text-rose-600 font-bold px-6 py-2.5 rounded-full shadow-md text-sm md:text-base font-display flex items-center gap-1.5"
+              exit={{ opacity: 0, scale: 0.9, y: -8 }}
+              className="bg-white border border-pink-100/10 px-6 py-2 rounded-full shadow-sm flex items-center gap-2"
+              style={{ boxShadow: '0 10px 25px -8px rgba(233, 106, 135, 0.1)' }}
             >
-              <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
-              {message}
+              <Sparkles className="w-3.5 h-3.5 text-[#D9B36A]" />
+              <span className="font-handwriting text-2xl text-[#E96A87] pt-0.5">{message}</span>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Nút Surprise quả tim lớn */}
+      {/* Con dấu sáp trái tim mộc mạc tối giản */}
       <motion.button
         onClick={handleClick}
-        className="w-28 h-28 rounded-full bg-gradient-to-tr from-rose-500 to-pink-500 text-white flex flex-col items-center justify-center shadow-lg border-4 border-white hover:from-rose-600 hover:to-pink-600 transition-all active:scale-90"
+        className="w-24 h-24 rounded-full bg-[#FCFBF9] text-[#E96A87] flex flex-col items-center justify-center shadow-md border-2 border-pink-100/15 hover:border-[#E96A87]/30 transition-all duration-300 active:scale-95"
         animate={{
-          scale: [1, 1.05, 1],
-          rotate: [0, 2, -2, 0]
+          y: [0, -3, 0],
         }}
         transition={{
           repeat: Infinity,
-          duration: 2,
+          duration: 3,
           ease: "easeInOut"
         }}
         style={{
-          boxShadow: '0 8px 30px rgba(244, 63, 94, 0.4)',
-          borderColor: 'var(--color-border)'
+          boxShadow: '0 15px 35px -10px rgba(233, 106, 135, 0.08)'
         }}
       >
-        <Heart className="w-8 h-8 fill-white mb-1" />
-        <span className="text-xs uppercase font-extrabold tracking-widest">Surprise!</span>
+        <Heart className="w-7 h-7 fill-[#E96A87]/10 text-[#E96A87] mb-1 animate-pulse" />
+        <span className="text-[9px] tracking-widest font-sans uppercase font-semibold text-[#7A7A7A]">Surprise</span>
       </motion.button>
 
-      <span className="text-xs text-[var(--color-text-muted)] mt-4 font-semibold">
-        Click để nhận bất ngờ ngọt ngào ({clickCount} lần đã nhấn)
+      <span className="text-[10px] tracking-wider text-[#7A7A7A] uppercase font-light mt-5">
+        Click for a sweet note ({clickCount} times)
       </span>
+      
     </div>
   );
 }

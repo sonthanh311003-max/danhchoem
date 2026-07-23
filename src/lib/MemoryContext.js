@@ -16,6 +16,7 @@ export function MemoryProvider({ children }) {
   
   // Trạng thái phát nhạc toàn cục
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
+  const [musicVolume, setMusicVolume] = useState(0.5);
 
   // Khôi phục dữ liệu từ localStorage khi khởi động
   useEffect(() => {
@@ -201,6 +202,8 @@ export function MemoryProvider({ children }) {
       setTheme,
       isPlayingMusic,
       setIsPlayingMusic,
+      musicVolume,
+      setMusicVolume,
       updateCoupleInfo,
       addTimelineItem,
       updateTimelineItem,
