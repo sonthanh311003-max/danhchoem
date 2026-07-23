@@ -6,6 +6,7 @@ import { useWizardStore } from '@/features/wizard/stores/useWizardStore';
 import { useProjectStore } from '@/features/projects/stores/useProjectStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Sparkles, Upload, Music, Trash2, Heart, Smile } from 'lucide-react';
+import { SceneStage, ParticleField, FloatingEnvelope } from '@/components/scene';
 
 export default function WizardPage() {
   const router = useRouter();
@@ -542,27 +543,10 @@ export default function WizardPage() {
             </motion.div>
           ) : (
             /* 🕯️ RITUAL ANIMATION SCREEN (Nghi thức gập thư lấp lánh bụi vàng) */
-            <motion.div
-              key="ritual-screen"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="w-full max-w-md text-center flex flex-col items-center gap-6 py-8"
-            >
-              <div className="relative w-20 h-20 flex items-center justify-center">
-                {/* Vòng sáng vàng mờ ảo */}
-                <div className="absolute inset-0 bg-[#D9B36A]/10 rounded-full blur-xl animate-pulse" />
-                <Sparkles className="w-10 h-10 text-[#D9B36A] animate-spin duration-5000" />
-              </div>
-              <div className="flex flex-col gap-3">
-                <h2 className="font-display text-3xl font-light text-[#D9B36A] tracking-wider animate-pulse">
-                  It will be safe here.
-                </h2>
-                <p className="text-xs text-gray-400 dark:text-[#B5A8A6] font-sans tracking-wide">
-                  Nó sẽ được bảo vệ an toàn ở nơi này...
-                </p>
-              </div>
-            </motion.div>
+            <SceneStage>
+              <ParticleField density="low" />
+              <FloatingEnvelope size="md" glowColor="gold" autoFloat={false} label="It will be safe here." />
+            </SceneStage>
           )}
         </AnimatePresence>
       </div>

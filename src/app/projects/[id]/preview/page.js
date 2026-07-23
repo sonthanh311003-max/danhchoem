@@ -6,7 +6,8 @@ import { useProjectStore } from '@/features/projects/stores/useProjectStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, ArrowLeft, Eye, Edit2, Play, ChevronDown, Sparkles } from 'lucide-react';
 import LetterEditor from '@/features/editor/components/LetterEditor';
-import TimelineController, { useAnimationTimeline } from '@/features/viewer/hooks/useAnimationTimeline'; // Chúng ta có thể dùng import trực tiếp
+import TimelineController, { useAnimationTimeline } from '@/features/viewer/hooks/useAnimationTimeline';
+import { FloatingEnvelope } from '@/components/scene';
 
 // Tạm thời định nghĩa các hàm con của Preview page tại đây
 export default function ProjectPreviewPage({ params }) {
@@ -126,22 +127,12 @@ export default function ProjectPreviewPage({ params }) {
                 <AnimatePresence>
                   {!envelopeOpen ? (
                     /* Phong bì kín */
-                    <motion.div
-                      key="envelope-closed"
-                      exit={{ opacity: 0, scale: 0.9, y: -30 }}
-                      className="relative w-full max-w-sm bg-[#FFFDFB] dark:bg-[#1F1A1A] p-8 border border-[#FAF6F0] dark:border-[#292222] rounded-3xl shadow-[0_20px_50px_rgba(61,43,39,0.06)] cursor-pointer flex flex-col items-center justify-center gap-6 group"
-                      onClick={() => setEnvelopeOpen(true)}
-                    >
-                      <div className="w-16 h-16 rounded-full bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 flex items-center justify-center text-red-500 shadow-sm relative z-10 group-hover:scale-105 transition-all duration-300">
-                        <Heart className="w-7 h-7 fill-current animate-pulse" />
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        <span className="font-display text-2xl font-light">Bức thư tình yêu</span>
-                        <span className="text-[10px] text-gray-400 dark:text-[#7A6D6B] font-mono tracking-widest uppercase mt-1">
-                          Click để mở con dấu sáp
-                        </span>
-                      </div>
-                    </motion.div>
+                    <FloatingEnvelope 
+                      size="lg" 
+                      glowColor="rose" 
+                      onOpen={() => setEnvelopeOpen(true)} 
+                      label="Bức thư tình yêu" 
+                    />
                   ) : (
                     /* Lá thư trượt ra */
                     <motion.div
