@@ -7,12 +7,15 @@ import MusicPlayer from '@/components/MusicPlayer';
 import TimeCounter from '@/components/TimeCounter';
 import Timeline from '@/components/Timeline';
 import PhotoAlbum from '@/components/PhotoAlbum';
-import SecretLetter from '@/components/SecretLetter';
-import FutureLetter from '@/components/FutureLetter';
-import BucketList from '@/components/BucketList';
-import Guestbook from '@/components/Guestbook';
-import SurpriseButton from '@/components/SurpriseButton';
 import IntroLetter from '@/components/IntroLetter';
+import dynamic from 'next/dynamic';
+
+const SecretLetter = dynamic(() => import('@/components/SecretLetter'), { ssr: false });
+const FutureLetter = dynamic(() => import('@/components/FutureLetter'), { ssr: false });
+const BucketList = dynamic(() => import('@/components/BucketList'), { ssr: false });
+const Guestbook = dynamic(() => import('@/components/Guestbook'), { ssr: false });
+const SurpriseButton = dynamic(() => import('@/components/SurpriseButton'), { ssr: false });
+
 import { Heart, ChevronDown, Settings, Sparkles, MapPin } from 'lucide-react';
 import Link from 'next/link';
 
