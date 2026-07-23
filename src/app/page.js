@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useMemory } from '@/lib/MemoryContext';
 import FallingParticles from '@/components/FallingParticles';
 import MusicPlayer from '@/components/MusicPlayer';
@@ -12,6 +12,7 @@ import FutureLetter from '@/components/FutureLetter';
 import BucketList from '@/components/BucketList';
 import Guestbook from '@/components/Guestbook';
 import SurpriseButton from '@/components/SurpriseButton';
+import IntroLetter from '@/components/IntroLetter';
 import { Heart, ChevronDown, Settings, ShieldAlert, Sparkles, MapPin } from 'lucide-react';
 import Link from 'next/link';
 
@@ -19,10 +20,25 @@ export default function Home() {
   const { couple, isPlayingMusic, setIsPlayingMusic } = useMemory();
   const contentRef = useRef(null);
 
-  const scrollTocontent = () => {
-    // Tự động bật nhạc khi người dùng nhấn "Enter" để tránh bị chặn autoplay
+  const [hasEntered, setHasEntered] = useState(true);
+
+  useEffect(() => {
+    // Chỉ chạy ở client-side
+    const entered = sessionStorage.getItem('dmc_entered_intro');
+    if (!entered) {
+      setHasEntered(false);
+    }
+  }, []);
+
+  const handleEnterSite = () => {
+    setHasEntered(true);
+    // Bật nhạc nền tự động khi họ click bước vào trang chính
     setIsPlayingMusic(true);
-    
+    sessionStorage.setItem('dmc_entered_intro', 'true');
+  };
+
+  const scrollTocontent = () => {
+    setIsPlayingMusic(true);
     contentRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -222,6 +238,11 @@ export default function Home() {
           <span>Quản lý Memory Capsule (Admin)</span>
         </Link>
       </footer>
+
+      {/* Lớp phủ Bức thư mở đầu lãng mạn */}
+      {!hasEntered && (
+        <IntroLetter couple={couple} onEnterSite={handleEnterSite} />
+      )}
     </div>
   );
 }

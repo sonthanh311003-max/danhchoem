@@ -22,6 +22,11 @@ CREATE TABLE IF NOT EXISTS couples (
   avatar1_url TEXT,
   avatar2_url TEXT,
   cover_image_url TEXT,
+  intro_greeting TEXT,
+  intro_message TEXT,
+  intro_sign_off TEXT,
+  intro_sender TEXT,
+  intro_stamp_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -78,7 +83,8 @@ CREATE TABLE IF NOT EXISTS guestbook (
 INSERT INTO couples (
   id, slug, partner1, partner2, anniversary_date, theme, music_url,
   secret_letter_key, secret_letter_content, future_letter_content, future_letter_open_date,
-  spotify_playlist_url, maps_embed_url, avatar1_url, avatar2_url, cover_image_url
+  spotify_playlist_url, maps_embed_url, avatar1_url, avatar2_url, cover_image_url,
+  intro_greeting, intro_message, intro_sign_off, intro_sender, intro_stamp_url
 ) VALUES (
   '11111111-1111-1111-1111-111111111111', 
   'linh-minh', 
@@ -95,7 +101,12 @@ INSERT INTO couples (
   'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.4607738221896!2d106.69741547469721!3d10.776019559203673!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f4705555555%3A0xe10f930e461b6b55!2sHighlands%20Coffee!5e0!3m2!1svi!2s!4v1700000000000!5m2!1svi!2s',
   'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=300&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=300&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=1200&auto=format&fit=crop'
+  'https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=1200&auto=format&fit=crop',
+  'Hey Samira,',
+  'Love is in the air, so I''m taking this chance to spill the beans! You know, you''ve been my classroom buddy for a while now, and I gotta say, I''ve developed a pretty strong crush on you. Every time I see you, my heart does a little dance, and I can''t help feeling lucky to be around you.',
+  'Fingers crossed,',
+  'Aaron',
+  'https://images.unsplash.com/photo-1555448248-2571daf6344b?q=80&w=200&auto=format&fit=crop'
 ) ON CONFLICT (slug) DO NOTHING;
 
 -- Chèn timeline mẫu

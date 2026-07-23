@@ -49,6 +49,13 @@ export default function AdminDashboard() {
   const [futureLetterOpenDate, setFutureLetterOpenDate] = useState('');
   const [localGeminiKey, setLocalGeminiKey] = useState('');
 
+  // States cho Bức thư mở đầu (Intro Letter)
+  const [introGreeting, setIntroGreeting] = useState('');
+  const [introMessage, setIntroMessage] = useState('');
+  const [introSignOff, setIntroSignOff] = useState('');
+  const [introSender, setIntroSender] = useState('');
+  const [introStampUrl, setIntroStampUrl] = useState('');
+
   // Đồng bộ states từ Context khi tải trang hoặc khi couple đổi
   useEffect(() => {
     if (couple) {
@@ -66,6 +73,12 @@ export default function AdminDashboard() {
       setSecretLetterContent(couple.secretLetterContent || '');
       setFutureLetterContent(couple.futureLetterContent || '');
       setFutureLetterOpenDate(couple.futureLetterOpenDate || '');
+      
+      setIntroGreeting(couple.introGreeting || '');
+      setIntroMessage(couple.introMessage || '');
+      setIntroSignOff(couple.introSignOff || '');
+      setIntroSender(couple.introSender || '');
+      setIntroStampUrl(couple.introStampUrl || '');
       
       const storedKey = localStorage.getItem('dmc_gemini_key') || '';
       setLocalGeminiKey(storedKey);
@@ -210,7 +223,8 @@ export default function AdminDashboard() {
     updateCoupleInfo({
       partner1, partner2, anniversaryDate, theme: selectedTheme, musicUrl,
       coverImage, avatar1, avatar2, spotifyPlaylistUrl, mapsEmbedUrl,
-      secretLetterKey, secretLetterContent, futureLetterContent, futureLetterOpenDate
+      secretLetterKey, secretLetterContent, futureLetterContent, futureLetterOpenDate,
+      introGreeting, introMessage, introSignOff, introSender, introStampUrl
     });
     
     localStorage.setItem('dmc_gemini_key', localGeminiKey);
@@ -554,6 +568,60 @@ export default function AdminDashboard() {
                       rows="4" value={futureLetterContent} onChange={(e) => setFutureLetterContent(e.target.value)}
                       className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm bg-gray-50 resize-none"
                     />
+                  </div>
+                </div>
+              </div>
+
+              {/* Bức thư tình mở đầu (Intro Letter) */}
+              <div className="border-t border-gray-100 pt-6">
+                <h3 className="text-sm font-bold text-gray-900 mb-4">Bức thư tình mở đầu (Intro Letter)</h3>
+                <p className="text-xs text-gray-500 mb-4">
+                  Bức thư này sẽ hiển thị dưới dạng phong bì đóng kín ngay khi truy cập trang web. Người thương của bạn click mở phong bì sẽ đọc được những dòng này.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Lời chào đầu thư</label>
+                    <input
+                      type="text" value={introGreeting} onChange={(e) => setIntroGreeting(e.target.value)}
+                      placeholder="Ví dụ: Hey Samira,"
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm bg-gray-50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Lời kết thư</label>
+                    <input
+                      type="text" value={introSignOff} onChange={(e) => setIntroSignOff(e.target.value)}
+                      placeholder="Ví dụ: Fingers crossed,"
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm bg-gray-50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Người gửi (Ký tên)</label>
+                    <input
+                      type="text" value={introSender} onChange={(e) => setIntroSender(e.target.value)}
+                      placeholder="Ví dụ: Aaron"
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm bg-gray-50"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nội dung thư nhắn nhủ</label>
+                    <textarea
+                      rows="5" value={introMessage} onChange={(e) => setIntroMessage(e.target.value)}
+                      placeholder="Nhập nội dung thư..."
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm bg-gray-50 resize-none"
+                    />
+                  </div>
+                  <div className="md:col-span-1">
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Ảnh con tem thư (Link URL)</label>
+                    <input
+                      type="text" value={introStampUrl} onChange={(e) => setIntroStampUrl(e.target.value)}
+                      placeholder="Link ảnh làm tem thư..."
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm bg-gray-50"
+                    />
+                    <FileUploadButton label="Tải ảnh tem thư lên" onUploadComplete={setIntroStampUrl} fieldId="introStamp" />
                   </div>
                 </div>
               </div>

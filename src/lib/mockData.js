@@ -15,7 +15,14 @@ export const mockCoupleData = {
   avatar1: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=300&auto=format&fit=crop", // Ảnh mẫu Linh
   avatar2: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=300&auto=format&fit=crop", // Ảnh mẫu Minh
   coverImage: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=1200&auto=format&fit=crop", // Ảnh nền tình yêu
-  aiApiKey: "" // Admin sẽ cấu hình
+  aiApiKey: "", // Admin sẽ cấu hình
+  
+  // Các trường cấu hình Bức thư mở đầu (Intro Letter)
+  introGreeting: "Hey Samira,",
+  introMessage: "Love is in the air, so I'm taking this chance to spill the beans! You know, you've been my classroom buddy for a while now, and I gotta say, I've developed a pretty strong crush on you. Every time I see you, my heart does a little dance, and I can't help feeling lucky to be around you.\n\nSo here's the deal: I want to take you out on a date and get to know you better. What do you say? Ready to be swept off your feet?",
+  introSignOff: "Fingers crossed,",
+  introSender: "Aaron",
+  introStampUrl: "https://images.unsplash.com/photo-1555448248-2571daf6344b?q=80&w=200&auto=format&fit=crop" // Ảnh gấu con làm con tem
 };
 
 export const mockTimelines = [
