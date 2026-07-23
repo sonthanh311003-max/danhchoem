@@ -58,7 +58,8 @@ export const projectService = {
         .single();
 
       if (projectError) {
-        throw new Error('Không thể khởi tạo kỷ niệm. Vui lòng thử lại sau.');
+        console.error('[ProjectService] Detail projectError:', projectError);
+        throw new Error(`Không thể khởi tạo kỷ niệm: ${projectError.message} (${projectError.code})`);
       }
 
       // Insert images if present
@@ -98,7 +99,8 @@ export const projectService = {
         .order('updated_at', { ascending: false });
 
       if (error) {
-        throw new Error('Không thể tải danh sách kỷ niệm từ cơ sở dữ liệu.');
+        console.error('[ProjectService] Detail selectError:', error);
+        throw new Error(`Không thể tải danh sách kỷ niệm: ${error.message} (${error.code})`);
       }
 
       return data.map(project => ({
