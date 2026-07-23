@@ -55,6 +55,10 @@ export default function AdminDashboard() {
   const [introSignOff, setIntroSignOff] = useState('');
   const [introSender, setIntroSender] = useState('');
   const [introStampUrl, setIntroStampUrl] = useState('');
+  const [introEnvelopeText, setIntroEnvelopeText] = useState('');
+  const [introEnvelopeLabel, setIntroEnvelopeLabel] = useState('');
+  const [introLetterNote, setIntroLetterNote] = useState('');
+  const [introButtonText, setIntroButtonText] = useState('');
 
   // Đồng bộ states từ Context khi tải trang hoặc khi couple đổi
   useEffect(() => {
@@ -79,6 +83,10 @@ export default function AdminDashboard() {
       setIntroSignOff(couple.introSignOff || '');
       setIntroSender(couple.introSender || '');
       setIntroStampUrl(couple.introStampUrl || '');
+      setIntroEnvelopeText(couple.introEnvelopeText || '');
+      setIntroEnvelopeLabel(couple.introEnvelopeLabel || '');
+      setIntroLetterNote(couple.introLetterNote || '');
+      setIntroButtonText(couple.introButtonText || '');
       
       const storedKey = localStorage.getItem('dmc_gemini_key') || '';
       setLocalGeminiKey(storedKey);
@@ -224,7 +232,8 @@ export default function AdminDashboard() {
       partner1, partner2, anniversaryDate, theme: selectedTheme, musicUrl,
       coverImage, avatar1, avatar2, spotifyPlaylistUrl, mapsEmbedUrl,
       secretLetterKey, secretLetterContent, futureLetterContent, futureLetterOpenDate,
-      introGreeting, introMessage, introSignOff, introSender, introStampUrl
+      introGreeting, introMessage, introSignOff, introSender, introStampUrl,
+      introEnvelopeText, introEnvelopeLabel, introLetterNote, introButtonText
     });
     
     localStorage.setItem('dmc_gemini_key', localGeminiKey);
@@ -622,6 +631,41 @@ export default function AdminDashboard() {
                       className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm bg-gray-50"
                     />
                     <FileUploadButton label="Tải ảnh tem thư lên" onUploadComplete={setIntroStampUrl} fieldId="introStamp" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-dashed border-gray-100">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Chữ thò ra từ phong bì</label>
+                    <input
+                      type="text" value={introEnvelopeText} onChange={(e) => setIntroEnvelopeText(e.target.value)}
+                      placeholder="Mặc định: To the Love of My Life"
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm bg-gray-50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Chữ nhấp nháy dưới phong bì</label>
+                    <input
+                      type="text" value={introEnvelopeLabel} onChange={(e) => setIntroEnvelopeLabel(e.target.value)}
+                      placeholder="Mặc định: CLICK TO OPEN 💖"
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm bg-gray-50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Chữ góc trái trên lá thư</label>
+                    <input
+                      type="text" value={introLetterNote} onChange={(e) => setIntroLetterNote(e.target.value)}
+                      placeholder="Mặc định: Pause to read 📖"
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm bg-gray-50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Chữ trên nút bước vào trang chủ</label>
+                    <input
+                      type="text" value={introButtonText} onChange={(e) => setIntroButtonText(e.target.value)}
+                      placeholder="Mặc định: Bước vào thế giới của chúng mình"
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm bg-gray-50"
+                    />
                   </div>
                 </div>
               </div>

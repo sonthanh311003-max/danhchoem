@@ -27,6 +27,10 @@ CREATE TABLE IF NOT EXISTS couples (
   intro_sign_off TEXT,
   intro_sender TEXT,
   intro_stamp_url TEXT,
+  intro_envelope_text TEXT,
+  intro_envelope_label TEXT,
+  intro_letter_note TEXT,
+  intro_button_text TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -84,7 +88,8 @@ INSERT INTO couples (
   id, slug, partner1, partner2, anniversary_date, theme, music_url,
   secret_letter_key, secret_letter_content, future_letter_content, future_letter_open_date,
   spotify_playlist_url, maps_embed_url, avatar1_url, avatar2_url, cover_image_url,
-  intro_greeting, intro_message, intro_sign_off, intro_sender, intro_stamp_url
+  intro_greeting, intro_message, intro_sign_off, intro_sender, intro_stamp_url,
+  intro_envelope_text, intro_envelope_label, intro_letter_note, intro_button_text
 ) VALUES (
   '11111111-1111-1111-1111-111111111111', 
   'linh-minh', 
@@ -106,7 +111,11 @@ INSERT INTO couples (
   'Love is in the air, so I''m taking this chance to spill the beans! You know, you''ve been my classroom buddy for a while now, and I gotta say, I''ve developed a pretty strong crush on you. Every time I see you, my heart does a little dance, and I can''t help feeling lucky to be around you.',
   'Fingers crossed,',
   'Aaron',
-  'https://images.unsplash.com/photo-1555448248-2571daf6344b?q=80&w=200&auto=format&fit=crop'
+  'https://images.unsplash.com/photo-1555448248-2571daf6344b?q=80&w=200&auto=format&fit=crop',
+  'To the Love of My Life',
+  'CLICK TO OPEN 💖',
+  'Pause to read 📖',
+  'Bước vào thế giới của chúng mình'
 ) ON CONFLICT (slug) DO NOTHING;
 
 -- Chèn timeline mẫu

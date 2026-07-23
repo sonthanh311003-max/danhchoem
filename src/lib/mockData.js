@@ -22,7 +22,11 @@ export const mockCoupleData = {
   introMessage: "Love is in the air, so I'm taking this chance to spill the beans! You know, you've been my classroom buddy for a while now, and I gotta say, I've developed a pretty strong crush on you. Every time I see you, my heart does a little dance, and I can't help feeling lucky to be around you.\n\nSo here's the deal: I want to take you out on a date and get to know you better. What do you say? Ready to be swept off your feet?",
   introSignOff: "Fingers crossed,",
   introSender: "Aaron",
-  introStampUrl: "https://images.unsplash.com/photo-1555448248-2571daf6344b?q=80&w=200&auto=format&fit=crop" // Ảnh gấu con làm con tem
+  introStampUrl: "https://images.unsplash.com/photo-1555448248-2571daf6344b?q=80&w=200&auto=format&fit=crop", // Ảnh gấu con làm con tem
+  introEnvelopeText: "To the Love of My Life",
+  introEnvelopeLabel: "CLICK TO OPEN 💖",
+  introLetterNote: "Pause to read 📖",
+  introButtonText: "Bước vào thế giới của chúng mình"
 };
 
 export const mockTimelines = [
