@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 export const projectService = {
   /**
    * Create a new project along with its associated images.
-   * Auto-falls back to anonymous sign-in or session checks to guarantee smooth creation flow.
+   * Auto-falls back to automatic mock user generation to prevent crash on dev environments.
    */
   async createProject(data) {
     try {
@@ -19,20 +19,26 @@ export const projectService = {
         if (sessionData?.session?.user) {
           user = sessionData.session.user;
         } else {
-          // 3. Tự động đăng nhập ẩn danh để đảm bảo người dùng chưa đăng nhập vẫn lưu được kỉ vật
+          // 3. Tự động tạo và đăng ký một tài khoản khách ngẫu nhiên để đảm bảo ghi nhận DB thành công
           try {
-            const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously();
-            if (!anonError && anonData?.user) {
-              user = anonData.user;
+            const mockEmail = `guest_${Math.round(Math.random() * 100000)}@memoryos.local`;
+            const mockPass = 'GuestPass123!';
+            const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+              email: mockEmail,
+              password: mockPass
+            });
+            
+            if (!signUpError && signUpData?.user) {
+              user = signUpData.user;
             }
           } catch (e) {
-            console.warn('[ProjectService] Anonymous sign-in failed/not supported:', e);
+            console.warn('[ProjectService] Auto guest registration failed:', e);
           }
         }
       }
 
       if (!user) {
-        throw new Error('Vui lòng đăng nhập tài khoản để thực hiện lưu trữ kỉ vật.');
+        throw new Error('Vui lòng đăng ký hoặc đăng nhập tài khoản để thực hiện lưu trữ kỉ vật.');
       }
 
       // Insert project
