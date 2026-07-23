@@ -14,9 +14,13 @@ export default function IntroLetter({ couple, onEnterSite }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const [step, setStep] = useState('closed'); // 'closed', 'shaking', 'opening-flap', 'extracting-letter', 'opened', 'exiting'
+  const [isMounted, setIsMounted] = useState(false);
 
-  // 1. Khóa cuộn trang chính khi đang đọc thư tình mở đầu
+  // 1. Chỉ kích hoạt các logic Client sau khi Mount thành công (Chống lỗi Hydration sập trang)
   useEffect(() => {
+    setIsMounted(true);
+    
+    // Khóa cuộn trang chính
     document.documentElement.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
     
@@ -101,7 +105,6 @@ export default function IntroLetter({ couple, onEnterSite }) {
     }, 600);
   };
 
-  // Các biến thể hoạt ảnh Framer Motion (Variants)
   const containerVariants = {
     closed: { scale: 1, filter: 'blur(0px)' },
     shaking: { scale: 1, x: [0, -5, 5, -4, 4, 0], transition: { duration: 0.12 } },
@@ -110,6 +113,12 @@ export default function IntroLetter({ couple, onEnterSite }) {
     opened: { scale: 1.06 },
     exiting: { scale: 0.94, opacity: 0, transition: { duration: 0.6, ease: [0.32, 9.6, 0.44, 1] } }
   };
+
+  const flapOpened = step === 'opening-flap' || step === 'extracting-letter' || step === 'opened';
+  const letterExtracted = step === 'extracting-letter' || step === 'opened';
+
+  // Tránh render DOM sai biệt trước khi hydrate xong ở Client
+  if (!isMounted) return null;
 
   return (
     <AnimatePresence>
@@ -129,19 +138,19 @@ export default function IntroLetter({ couple, onEnterSite }) {
           }}
         >
           
-          {/* ✨ HẠT BỤI ÁNH SÁNG TRÔI NỔI DỊU NHẸ (Ambient Floating Dust) */}
+          {/* ✨ HẠT BỤI ÁNH SÁNG TRÔI NỔI DỊU NHẸ (Dùng chỉ số index để sinh thông số đồng bộ Server-Client) */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
             {[...Array(8)].map((_, i) => (
               <div 
                 key={i} 
                 className="absolute rounded-full bg-white/25 blur-[2px]"
                 style={{
-                  width: `${Math.random() * 5 + 3}px`,
-                  height: `${Math.random() * 5 + 3}px`,
-                  left: `${Math.random() * 80 + 10}%`,
-                  top: `${Math.random() * 80 + 10}%`,
-                  animation: `floatDust ${Math.random() * 15 + 12}s linear infinite`,
-                  animationDelay: `${Math.random() * 6}s`
+                  width: `${(i % 3) * 1.5 + 3.5}px`,
+                  height: `${(i % 3) * 1.5 + 3.5}px`,
+                  left: `${(i * 13 + 17) % 80 + 10}%`,
+                  top: `${(i * 9 + 25) % 80 + 10}%`,
+                  animation: `floatDust ${(i % 4) * 3 + 12}s linear infinite`,
+                  animationDelay: `${(i % 3) * 2.2}s`
                 }}
               />
             ))}
@@ -175,14 +184,14 @@ export default function IntroLetter({ couple, onEnterSite }) {
             }
           `}} />
 
-          {/* 🎬 CONTAINER CAMERA ZOOM (Framed camera perspective) */}
+          {/* 🎬 CONTAINER CAMERA ZOOM */}
           <motion.div 
             variants={containerVariants}
             animate={step}
             className="w-full max-h-full flex items-center justify-center relative z-20 perspective-1000"
           >
             
-            {/* ✉️ 1. PHONG BÌ GIẤY THẬT (Fluid co giãn tỉ lệ vàng) */}
+            {/* ✉️ 1. PHONG BÌ GIẤY THẬT (Fluid co giãn) */}
             {(step === 'closed' || step === 'shaking' || step === 'opening-flap' || step === 'extracting-letter') && (
               <div 
                 onClick={handleOpenEnvelope}
@@ -196,7 +205,6 @@ export default function IntroLetter({ couple, onEnterSite }) {
                   transform: isHovered && step === 'closed' ? 'translateY(-6px) scale(1.03)' : 'translateY(0px) scale(1)',
                 }}
               >
-                {/* Bóng đổ phong bì đa tầng mịn màng */}
                 <div 
                   className="absolute inset-0 bg-[#3d2b27]/6 rounded-2xl blur-2xl transform translate-y-5 scale-[0.94] transition-all duration-700"
                   style={{
@@ -206,12 +214,10 @@ export default function IntroLetter({ couple, onEnterSite }) {
                   }}
                 />
 
-                {/* Thân sau phong bì (z-index: 10) */}
                 <div className="absolute inset-0 bg-[#FAF6F0] rounded-2xl border border-pink-100/10 shadow-inner overflow-hidden vân-giấy-lụa" style={{ zIndex: 10 }}>
                   <div className="absolute inset-2.5 border border-pink-200/15 rounded-xl" />
                 </div>
 
-                {/* Chữ thò ra mấp mé phong bì (z-index: 12) */}
                 <div 
                   className={`absolute inset-x-8 h-[28%] bg-[#FCFAF7] border-t border-x border-pink-200/20 rounded-t-xl transition-all duration-750 shadow-sm flex items-center justify-center cursor-pointer vân-giấy-lụa ${flapOpened ? 'translate-y-16 opacity-0' : isHovered ? 'translate-y-[-18px]' : 'translate-y-[-10px]'}`} 
                   style={{ zIndex: 12, top: '-10%' }}
@@ -221,7 +227,6 @@ export default function IntroLetter({ couple, onEnterSite }) {
                   </span>
                 </div>
 
-                {/* NẮP PHONG BÌ TRÊN (Lật mở 3D chân thực bằng rotateX qua Framer Motion) */}
                 <motion.div 
                   initial={{ rotateX: 0 }}
                   animate={{ rotateX: flapOpened ? 180 : 0 }}
@@ -234,17 +239,11 @@ export default function IntroLetter({ couple, onEnterSite }) {
                   }}
                 />
 
-                {/* CÁNH GẤP PHONG BÌ MẶT TRƯỚC (z-index: 20) */}
                 <div className="absolute inset-y-0 left-0 w-[50%] bg-[#FAF6F0] border-l-2 border-y-2 border-pink-400/20 cursor-pointer vân-giấy-lụa" style={{ clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)', zIndex: 20 }} />
                 <div className="absolute inset-y-0 right-0 w-[50%] bg-[#FAF6F0] border-r-2 border-y-2 border-pink-400/20 cursor-pointer vân-giấy-lụa" style={{ clipPath: 'polygon(100% 0%, 0% 50%, 100% 100%)', zIndex: 20 }} />
                 <div className="absolute bottom-0 inset-x-0 h-[58%] bg-[#F5F2E8] border-b-2 border-x-2 border-pink-400/20 rounded-b-2xl cursor-pointer vân-giấy-lụa" style={{ clipPath: 'polygon(0% 100%, 50% 0%, 100% 100%)', zIndex: 20 }} />
 
-                {/* CON DẤU SÁP VÀNG CỔ ĐIỂN NỨT ĐÔI (Split wax seal)
-                    Hiệu ứng: Khi click mở, 2 nửa con dấu tách chéo ra hai bên và mờ đi đầy ảo diệu!
-                */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 pointer-events-none" style={{ zIndex: 30 }}>
-                  
-                  {/* Nửa trái con dấu */}
                   <motion.div 
                     animate={{ 
                       x: flapOpened ? -24 : 0, 
@@ -258,7 +257,6 @@ export default function IntroLetter({ couple, onEnterSite }) {
                     <Heart className="w-5 h-5 fill-white text-white opacity-90 translate-x-[9.5px]" />
                   </motion.div>
 
-                  {/* Nửa phải con dấu */}
                   <motion.div 
                     animate={{ 
                       x: flapOpened ? 24 : 0, 
@@ -271,10 +269,8 @@ export default function IntroLetter({ couple, onEnterSite }) {
                   >
                     <Heart className="w-5 h-5 fill-white text-white opacity-90 -translate-x-[9.5px]" />
                   </motion.div>
-
                 </div>
 
-                {/* CHỮ CHỈ DẪN NHẤP NHÁY DƯỚI PHONG BÌ (z-index: 30) */}
                 <div 
                   className={`absolute bottom-[-45px] inset-x-0 text-center text-[#E96A87] font-bold text-[10px] tracking-[0.2em] transition-opacity duration-500 uppercase font-sans ${isClicked ? 'opacity-0' : 'opacity-100 animate-pulse'}`}
                   style={{ zIndex: 30 }}
@@ -284,7 +280,10 @@ export default function IntroLetter({ couple, onEnterSite }) {
               </div>
             )}
 
-            {/* 📜 2. RUỘT LÁ THƯ TAY CO GIÃN THÍCH ỨNG VIEWPORT (Adaptive Height) */}
+            {/* 📜 2. RUỘT LÁ THƯ TAY THÍCH ỨNG VIEWPORT
+                Sử dụng các class responsive của Tailwind: w-[90vw] sm:w-[75vw] lg:w-[760px]
+                để bảo đảm an toàn tuyệt đối trước Hydration Mismatch.
+            */}
             <motion.div 
               initial={{ y: 80, scale: 0.92, opacity: 0 }}
               animate={{ 
@@ -293,18 +292,15 @@ export default function IntroLetter({ couple, onEnterSite }) {
                 opacity: letterExtracted ? 1 : 0
               }}
               transition={{ type: "spring", stiffness: 65, damping: 15, mass: 1 }}
-              className={`bg-[#FCFAF7] rounded-xl border border-[#FAF6F0] p-6 md:p-8 flex flex-col justify-between vân-giấy-lụa ${letterExtracted ? 'pointer-events-auto shadow-2xl' : 'pointer-events-none absolute'}`}
+              className={`bg-[#FCFAF7] rounded-xl border border-[#FAF6F0] p-6 md:p-8 flex flex-col justify-between vân-giấy-lụa w-[90vw] sm:w-[75vw] lg:w-[760px] ${letterExtracted ? 'pointer-events-auto shadow-2xl' : 'pointer-events-none absolute'}`}
               style={{
                 zIndex: letterExtracted ? 40 : 5,
-                // Chiều rộng thích ứng: 760px ở desktop, 75vw ở tablet, 90vw ở mobile
-                width: typeof window !== 'undefined' && window.innerWidth < 640 ? '90vw' : typeof window !== 'undefined' && window.innerWidth < 1024 ? '75vw' : '760px',
-                // CHIỀU CAO THÍCH ỨNG: Không bao giờ vượt quá chiều cao viewport sau khi trừ đi safe area padding
                 maxHeight: 'calc(100vh - 96px)',
                 minHeight: 'min(580px, calc(100vh - 96px))',
                 boxShadow: letterExtracted ? '0 30px 80px -15px rgba(61, 43, 39, 0.12)' : 'none'
               }}
             >
-              {/* Header thiệp: Lời chào đầu thư (Cố định chiều cao tự nhiên) */}
+              {/* Header thiệp */}
               <div className="flex justify-between items-start border-b border-pink-100/10 pb-3 relative">
                 <span className="font-display text-[#E96A87] text-xl font-light tracking-wide">
                   {couple.introGreeting || 'Hey Samira,'}
@@ -316,29 +312,26 @@ export default function IntroLetter({ couple, onEnterSite }) {
                 >
                   Close
                 </button>
-                {/* Nhãn ghi chú góc mỏng */}
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-[8px] font-bold text-pink-400/30 tracking-widest uppercase font-sans">
                   {couple.introLetterNote || 'Pause to read 📖'}
                 </div>
               </div>
 
-              {/* Body thiệp: RUỘT THƯ KỆ KÈM SCROLL NỘI BỘ (Chỉ cuộn vùng này!) */}
+              {/* Body thiệp */}
               <div className="flex-1 overflow-y-auto pr-2 my-5 letter-scroll select-text text-left">
                 <p className="font-handwriting text-2xl text-[#2B2B2B]/95 leading-relaxed tracking-wide whitespace-pre-wrap select-text">
                   {couple.introMessage || 'Love is in the air, so I\'m taking this chance to spill the beans...'}
                 </p>
               </div>
 
-              {/* Footer thiệp: Ký tên & Con tem & Nút bấm (Cố định chiều cao tự nhiên ở đáy) */}
+              {/* Footer thiệp */}
               <div className="border-t border-pink-100/10 pt-4 flex flex-col gap-5">
                 <div className="flex justify-between items-end">
-                  {/* Ký tên viết tay */}
                   <div className="flex flex-col items-start font-handwriting select-text text-left">
                     <span className="text-base text-pink-600 italic leading-none">{couple.introSignOff || 'Fingers crossed,'}</span>
                     <span className="text-2xl text-[#2B2B2B] font-bold mt-1 pl-2">{couple.introSender || 'Aaron'}</span>
                   </div>
 
-                  {/* Tem thư & Dấu tròn */}
                   <div className="relative flex flex-col items-end scale-90 origin-bottom-right">
                     <div className="w-16 h-20 bg-white p-0.5 shadow-md border border-dashed border-pink-400/40 rotate-[6deg] flex flex-col items-center justify-between rounded-sm">
                       <div className="w-full h-[74%] overflow-hidden bg-rose-50 rounded-sm">
@@ -360,7 +353,6 @@ export default function IntroLetter({ couple, onEnterSite }) {
                   </div>
                 </div>
 
-                {/* Nút bấm bước vào sang trọng (Màu xám đen/hồng ấm tinh tế) */}
                 <button
                   ref={letterButtonRef}
                   onClick={handleClose}
