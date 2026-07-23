@@ -88,20 +88,63 @@ export default function AdminDashboard() {
   // States và hàm xử lý tải ảnh lên trực tiếp
   const [uploadingField, setUploadingField] = useState(null);
 
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
+      if (!file.type.startsWith('image/')) {
+        resolve(file);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new window.Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const MAX_WIDTH = 1200;
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const compressedFile = new File([blob], file.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now()
+              });
+              resolve(compressedFile);
+            } else {
+              resolve(file);
+            }
+          }, 'image/jpeg', 0.75);
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleFileUpload = async (e, setUrlCallback, fieldId) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 15 * 1024 * 1024) {
-      alert("Kích thước file quá lớn (tối đa 15MB). Vui lòng chọn file nhẹ hơn.");
+    if (file.size > 25 * 1024 * 1024) {
+      alert("Kích thước file quá lớn (tối đa 25MB). Vui lòng chọn file nhẹ hơn.");
       return;
     }
 
     setUploadingField(fieldId);
 
     try {
+      // Tu dong nen anh truoc khi gui di
+      const processedFile = await compressImage(file);
+
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', processedFile);
 
       const response = await fetch('/api/upload', {
         method: 'POST',
@@ -120,7 +163,7 @@ export default function AdminDashboard() {
           setUrlCallback(reader.result);
           alert("Đã lưu file cục bộ thành công! (Chế độ chạy thử nghiệm offline)");
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(processedFile);
       }
     } catch (err) {
       console.error("Upload error:", err);
